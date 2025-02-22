@@ -1,9 +1,9 @@
-# Исключаем виртуальное окружение
+
 venv/
 env/
 images/
+.idea/
 
-# Файлы конфигурации
 .env
 config.json
 settings.py
@@ -11,13 +11,11 @@ config.yml
 bot.session
 sophie.db
 
-# Кеши Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Логи и временные файлы
 logs/
 *.log
 *.sqlite3
