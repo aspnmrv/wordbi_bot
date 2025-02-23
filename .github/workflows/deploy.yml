@@ -3,16 +3,15 @@ name: Deploy Bot
 on:
   push:
     branches:
-      - main
+      - main  # или другая основная ветка
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-latest  # Или другой runner с нужными ресурсами
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2  # Используйте стандартный action для клонирования репозитория
+        uses: actions/checkout@v3
 
       - name: Set up SSH key
         run: |
@@ -21,30 +20,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Increase swapfile
-        run: |
-          sudo swapoff -a
-          sudo fallocate -l 15G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          sudo swapon --show
-
       - name: Log system resources before deployment
         run: |
           echo "Logging system resources..."
-          echo "Memory usage before deployment:" > $GITHUB_WORKSPACE/deploy_log.txt  # Используем рабочее пространство
+          echo "Memory usage before deployment:" > $GITHUB_WORKSPACE/deploy_log.txt
           free -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           echo "CPU usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
           top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           echo "Disk usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
           df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
-
-      - name: Display the logs from deploy_log.txt
-        run: |
-          echo "Displaying deploy logs..."
-          cat $GITHUB_WORKSPACE/deploy_log.txt
-
 
       - name: Connect to server and deploy
         uses: appleboy/ssh-action@master
@@ -53,12 +37,28 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "Start deploying..." > /root/wordbi_bot/deploy_log.txt
+            echo "Start deploying..." >> $GITHUB_WORKSPACE/deploy_log.txt
             cd /root/wordbi_bot
-            git reset --hard HEAD >> deploy_log.txt 2>&1 || { echo "Git reset failed"; exit 1; }
-            git pull origin main >> deploy_log.txt 2>&1 || { echo "Git pull failed"; exit 1; }
-            source venv/bin/activate >> deploy_log.txt 2>&1 || { echo "Failed to activate virtualenv"; exit 1; }
-            pip install --no-cache-dir -r requirements.txt >> deploy_log.txt 2>&1 || { echo "Failed to install dependencies"; exit 1; }
-            pkill -f main.py >> deploy_log.txt 2>&1 || echo "No process found to kill"
-            nohup python3 main.py >> deploy_log.txt 2>&1 &
-            tail -f deploy_log.txt
+            git reset --hard HEAD >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 || { echo "Git reset failed"; exit 1; }
+            git pull origin main >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 || { echo "Git pull failed"; exit 1; }
+            source venv/bin/activate >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 || { echo "Failed to activate virtualenv"; exit 1; }
+            pip install -r requirements.txt >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 || { echo "Failed to install dependencies"; exit 1; }
+            pkill -f main.py >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 || echo "No process found to kill"
+            nohup python3 main.py >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 &
+            echo "Deployment completed" >> $GITHUB_WORKSPACE/deploy_log.txt
+
+      - name: Log system resources after deployment
+        run: |
+          echo "Logging system resources after deployment..." >> $GITHUB_WORKSPACE/deploy_log.txt
+          free -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+          top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+          df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+
+      - name: Check processes after deployment
+        run: |
+          ps aux | grep python >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+
+      - name: Display the logs from deploy_log.txt
+        run: |
+          echo "Displaying deploy logs..."
+          cat $GITHUB_WORKSPACE/deploy_log.txt
