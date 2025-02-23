@@ -176,7 +176,6 @@ async def handler(event):
             state = await _get_user_words(user_id)
             print("state", state)
             current_word = state[0][1]
-            print("current_word", current_word)
 
             words_list = await _get_user_self_words(user_id)
             print("else words_list forward", words_list)
