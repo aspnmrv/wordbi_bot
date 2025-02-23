@@ -1,0 +1,28 @@
+name: Deploy Bot
+
+on:
+  push:
+    branches:
+      - main  # or any other main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Connect to server and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/wordbi_bot
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            pkill -f main.py
+            nohup python3 main.py &

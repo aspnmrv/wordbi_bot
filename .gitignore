@@ -1,8 +1,9 @@
 
 venv/
 env/
+images/
 .idea/
-.github/
+!images/test.png
 
 .env
 config.json
@@ -19,3 +20,4 @@ __pycache__/
 logs/
 *.log
 *.sqlite3
+
