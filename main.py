@@ -115,7 +115,6 @@ async def handler(event):
 
     async def process_refresh(event, user_id):
         state = await _get_user_words(user_id)
-        print("state", state)
         current_topic = state[0][0]
         current_word = state[0][1]
         current_lang = state[0][2]
