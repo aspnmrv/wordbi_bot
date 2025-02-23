@@ -142,7 +142,6 @@ async def handler(event):
         else:
             current_word_new = current_word
 
-        print(f"{current_word.replace(' ', '')}_{lang}.png")
         await send_img(
             event=event,
             buttons=buttons,
