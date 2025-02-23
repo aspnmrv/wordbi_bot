@@ -133,8 +133,6 @@ async def handler(event):
             lang = "en"
         else:
             lang = "ru"
-        print("lang", lang)
-        print("current_word", current_word)
 
         if lang == "ru":
             try:
