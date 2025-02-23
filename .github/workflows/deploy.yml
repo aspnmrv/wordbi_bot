@@ -22,13 +22,13 @@ jobs:
 
       - name: Log system resources before deployment
         run: |
-          echo "Logging system resources..."
-          echo "Memory usage before deployment:" > $GITHUB_WORKSPACE/deploy_log.txt
+          echo "Logging system resources..." > $GITHUB_WORKSPACE/deploy_log.txt
           free -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           echo "CPU usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
           top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           echo "Disk usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
           df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов
 
       - name: Connect to server and deploy
         uses: appleboy/ssh-action@master
@@ -46,6 +46,7 @@ jobs:
             pkill -f main.py >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 || echo "No process found to kill"
             nohup python3 main.py >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 &
             echo "Deployment completed" >> $GITHUB_WORKSPACE/deploy_log.txt
+            cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов
 
       - name: Log system resources after deployment
         run: |
@@ -53,10 +54,12 @@ jobs:
           free -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов
 
       - name: Check processes after deployment
         run: |
           ps aux | grep python >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов
 
       - name: Display the logs from deploy_log.txt
         run: |
