@@ -3,7 +3,7 @@ name: Deploy Bot
 on:
   push:
     branches:
-      - main  # or any other main branch
+      - main
 
 jobs:
   deploy:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2  # Используйте стандартный action для клонирования репозитория
 
       - name: Set up SSH key
         run: |
@@ -27,9 +27,14 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            echo "Start deploying..."
             cd /root/wordbi_bot
-            git pull origin main
-            source venv/bin/activate
-            pip install -r requirements.txt
-            pkill -f main.py
-            nohup python3 main.py &
+            git pull origin main || exit 1  # Завершить работу, если git pull не удался
+            echo "Install dependencies..."
+            source venv/bin/activate || exit 1  # Если активация окружения не удалась, завершить
+            pip install -r requirements.txt || exit 1  # Завершить работу, если установка зависимостей не удалась
+            echo "Kill existing process..."
+            pkill -f main.py || echo "No process found to kill"  # Если процесс не найден, не выбрасывать ошибку
+            echo "Start bot..."
+            nohup python3 main.py > bot.log 2>&1 &  # Перенаправить вывод в файл для отладки
+            echo "Deployment completed."
