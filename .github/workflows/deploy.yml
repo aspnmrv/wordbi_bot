@@ -28,12 +28,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "Start deploying..." > /root/wordbi_bot/deploy_log.txt
             cd /root/wordbi_bot
-            git reset --hard HEAD >> /root/wordbi_bot/deploy_log.txt 2>&1 || { echo "Git reset failed"; exit 1; }
-            git pull origin main >> /root/wordbi_bot/deploy_log.txt 2>&1 || { echo "Git pull failed"; exit 1; }
-            source venv/bin/activate >> /root/wordbi_bot/deploy_log.txt 2>&1 || { echo "Failed to activate virtualenv"; exit 1; }
-            pip install -r requirements.txt >> /root/wordbi_bot/deploy_log.txt 2>&1 || { echo "Failed to install dependencies"; exit 1; }
-            pkill -f main.py >> /root/wordbi_bot/deploy_log.txt 2>&1 || echo "No process found to kill"
-            nohup python3 main.py >> /root/wordbi_bot/deploy_log.txt 2>&1 &
-            echo "Deployment completed" >> /root/wordbi_bot/deploy_log.txt
+            git reset --hard HEAD
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            pkill -f main.py || echo "No process found to kill"
+            nohup python3 main.py > /root/wordbi_bot/nohup.out 2>&1 &
+            tail -f /root/wordbi_bot/nohup.out  # Для отображения логов
