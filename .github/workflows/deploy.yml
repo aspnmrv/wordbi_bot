@@ -30,6 +30,16 @@ jobs:
           sudo swapon /swapfile
           sudo swapon --show
 
+      - name: Log system resources before deployment
+        run: |
+          echo "Logging system resources..."
+          echo "Memory usage before deployment:" > /root/wordbi_bot/deploy_log.txt
+          free -h >> /root/wordbi_bot/deploy_log.txt 2>&1
+          echo "CPU usage before deployment:" >> /root/wordbi_bot/deploy_log.txt
+          top -n 1 | head -n 10 >> /root/wordbi_bot/deploy_log.txt 2>&1
+          echo "Disk usage before deployment:" >> /root/wordbi_bot/deploy_log.txt
+          df -h >> /root/wordbi_bot/deploy_log.txt 2>&1
+
       - name: Connect to server and deploy
         uses: appleboy/ssh-action@master
         with:
