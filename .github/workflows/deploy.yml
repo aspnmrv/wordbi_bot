@@ -40,6 +40,12 @@ jobs:
           echo "Disk usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
           df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
 
+      - name: Display the logs from deploy_log.txt
+        run: |
+          echo "Displaying deploy logs..."
+          cat $GITHUB_WORKSPACE/deploy_log.txt
+
+
       - name: Connect to server and deploy
         uses: appleboy/ssh-action@master
         with:
