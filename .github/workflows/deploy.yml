@@ -32,14 +32,13 @@ jobs:
 
       - name: Log system resources before deployment
         run: |
-          sudo chown -R $USER:$USER /root/wordbi_bot
           echo "Logging system resources..."
-          echo "Memory usage before deployment:" > /root/wordbi_bot/deploy_log.txt
-          free -h >> /root/wordbi_bot/deploy_log.txt 2>&1
-          echo "CPU usage before deployment:" >> /root/wordbi_bot/deploy_log.txt
-          top -n 1 | head -n 10 >> /root/wordbi_bot/deploy_log.txt 2>&1
-          echo "Disk usage before deployment:" >> /root/wordbi_bot/deploy_log.txt
-          df -h >> /root/wordbi_bot/deploy_log.txt 2>&1
+          echo "Memory usage before deployment:" > $GITHUB_WORKSPACE/deploy_log.txt  # Используем рабочее пространство
+          free -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+          echo "CPU usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
+          top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
+          echo "Disk usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
+          df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
 
       - name: Connect to server and deploy
         uses: appleboy/ssh-action@master
