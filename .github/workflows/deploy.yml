@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest  # Или другой runner с нужными ресурсами
+    timeout-minutes: 90  # Увеличиваем время на выполнение до 90 минут
 
     steps:
       - name: Checkout repository
@@ -20,6 +21,12 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      # Добавлен шаг для тестирования SSH-соединения
+      - name: Test SSH connection
+        run: |
+          echo "Testing SSH connection"
+          ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} echo "SSH connection successful"
+
       - name: Log system resources before deployment
         run: |
           echo "Logging system resources..." > $GITHUB_WORKSPACE/deploy_log.txt
@@ -28,7 +35,7 @@ jobs:
           top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           echo "Disk usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
           df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
-          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов
+          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов для проверки
 
       - name: Connect to server and deploy
         uses: appleboy/ssh-action@master
@@ -46,7 +53,7 @@ jobs:
             pkill -f main.py >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 || echo "No process found to kill"
             nohup python3 main.py >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1 &
             echo "Deployment completed" >> $GITHUB_WORKSPACE/deploy_log.txt
-            cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов
+            cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов для проверки
 
       - name: Log system resources after deployment
         run: |
@@ -54,14 +61,14 @@ jobs:
           free -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
-          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов
+          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов для проверки
 
       - name: Check processes after deployment
         run: |
           ps aux | grep python >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
-          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов
+          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов для проверки
 
       - name: Display the logs from deploy_log.txt
         run: |
           echo "Displaying deploy logs..."
-          cat $GITHUB_WORKSPACE/deploy_log.txt
+          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод всех логов в конце
