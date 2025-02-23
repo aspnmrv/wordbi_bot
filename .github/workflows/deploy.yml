@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -27,14 +28,12 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "Start deploying..."
+            echo "Start deploying..." > /root/wordbi_bot/deploy_log.txt
             cd /root/wordbi_bot
-            git pull origin main || exit 1  # Завершить работу, если git pull не удался
-            echo "Install dependencies..."
-            source venv/bin/activate || exit 1  # Если активация окружения не удалась, завершить
-            pip install -r requirements.txt || exit 1  # Завершить работу, если установка зависимостей не удалась
-            echo "Kill existing process..."
-            pkill -f main.py || echo "No process found to kill"  # Если процесс не найден, не выбрасывать ошибку
-            echo "Start bot..."
-            nohup python3 main.py > bot.log 2>&1 &  # Перенаправить вывод в файл для отладки
-            echo "Deployment completed."
+            git reset --hard HEAD >> /root/wordbi_bot/deploy_log.txt 2>&1 || { echo "Git reset failed"; exit 1; }
+            git pull origin main >> /root/wordbi_bot/deploy_log.txt 2>&1 || { echo "Git pull failed"; exit 1; }
+            source venv/bin/activate >> /root/wordbi_bot/deploy_log.txt 2>&1 || { echo "Failed to activate virtualenv"; exit 1; }
+            pip install -r requirements.txt >> /root/wordbi_bot/deploy_log.txt 2>&1 || { echo "Failed to install dependencies"; exit 1; }
+            pkill -f main.py >> /root/wordbi_bot/deploy_log.txt 2>&1 || echo "No process found to kill"
+            nohup python3 main.py >> /root/wordbi_bot/deploy_log.txt 2>&1 &
+            echo "Deployment completed" >> /root/wordbi_bot/deploy_log.txt
