@@ -1,8 +1,8 @@
 
 venv/
 env/
-images/
 .idea/
+.github/
 
 .env
 config.json

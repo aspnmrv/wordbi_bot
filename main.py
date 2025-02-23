@@ -18,7 +18,8 @@ from ellie import get_response, build_cards_from_text, get_conversations, get_tr
 
 from tools import update_text_from_state_markup, get_keyboard, find_file, is_expected_steps, \
     get_text_from_link, build_img_cards, get_proposal_topics, build_markup, get_state_markup, \
-    match_topics_name, get_diff_between_ts, build_list_of_words, build_history_message
+    match_topics_name, get_diff_between_ts, build_list_of_words, build_history_message, send_img, check_exist_img, \
+    create_img_card, get_translate_word
 from db import is_user_exist_db, update_data_users_db, update_data_topics_db, get_user_topics_db, \
     get_user_words_db, update_user_words_db, get_user_level_db, update_user_level_db, \
     update_messages_db, update_reviews_db, update_data_events_db, get_event_from_db, get_stat_use_message_db, \
@@ -113,6 +114,7 @@ async def handler(event):
 
     async def process_refresh(event, user_id):
         state = await _get_user_words(user_id)
+        print("state", state)
         current_topic = state[0][0]
         current_word = state[0][1]
         current_lang = state[0][2]
@@ -125,13 +127,40 @@ async def handler(event):
             ],
         ]
 
+        user_self_words = await _get_user_self_words(user_id)
+
         if current_lang == "ru":
             lang = "en"
         else:
             lang = "ru"
+        print("lang", lang)
+        print("current_word", current_word)
 
-        await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-                                        file=PATH_IMAGES / f"{current_word.replace(' ', '')}_{lang}.png", buttons=buttons)
+        if lang == "ru":
+            try:
+                current_word_new = await get_translate_word(word=current_word, from_lang="en")
+            except:
+                current_word_new = next((v for k, v in user_self_words.items() if k.lower() == current_word.lower()), None)
+        else:
+            current_word_new = current_word
+
+        print(f"{current_word.replace(' ', '')}_{lang}.png")
+        await send_img(
+            event=event,
+            buttons=buttons,
+            file_name=f"{current_word.replace(' ', '')}_{lang}.png",
+            current_word=current_word_new,
+            lang=lang,
+            type_action="edit"
+        )
+        # if await check_exist_img(f"{current_word.replace(' ', '')}_{lang}.png"):
+        #     await event.client.edit_message(event.sender_id, event.original_update.msg_id,
+        #                                     file=PATH_IMAGES / f"{current_word.replace(' ', '')}_{lang}.png", buttons=buttons)
+        # else:
+        #     await create_img_card(current_word.lower(), f"{current_word.replace(' ', '').lower()}_{lang}.png")
+        #     await event.client.edit_message(event.sender_id, event.original_update.msg_id,
+        #                                     file=PATH_IMAGES / f"{current_word.replace(' ', '')}_{lang}.png",
+        #                                     buttons=buttons)
         await _update_user_words(user_id, "sport", current_word, lang)
         await update_data_events_db(user_id, "refresh_card", {"step": step})
         return
@@ -139,20 +168,28 @@ async def handler(event):
     async def process_forward(event, user_id):
         if await is_expected_steps(user_id, [50]):
             words_list = await get_user_words_db(user_id)
+
             words_list = words_list[0]
+            print("words_list forward", words_list)
             state = await _get_user_words(user_id)
             current_word = state[0][1].lower()
             new_current_word = current_word
         else:
             state = await _get_user_words(user_id)
+            print("state", state)
             current_word = state[0][1]
+            print("current_word", current_word)
 
             words_list = await _get_user_self_words(user_id)
+            print("else words_list forward", words_list)
             new_current_word = current_word
 
         for i in range(len(words_list) - 1):
+            print("for", words_list[i])
             if words_list[i].lower() == current_word.lower():
                 new_current_word = words_list[i + 1].lower()
+                print("new_current_word", new_current_word)
+
 
         if new_current_word == current_word:
             buttons = [
@@ -161,9 +198,17 @@ async def handler(event):
                     Button.inline(text="🔄", data=0),
                 ],
             ]
-            await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-                                            file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
-                                            buttons=buttons)
+            await send_img(
+                event=event,
+                buttons=buttons,
+                file_name=f"{current_word.replace(' ', '')}_en.png",
+                current_word=current_word,
+                lang="en",
+                type_action="edit"
+            )
+            # await event.client.edit_message(event.sender_id, event.original_update.msg_id,
+            #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
+            #                                 buttons=buttons)
             keyboard = await get_keyboard(["Проверить себя 🧠", "Завершить"])
             text = "Карточки закончились, но ты можешь продолжать их листать и переворачивать, " \
                    "а также можешь проверить свои знания по кнопке Проверить себя 🧠\n"
@@ -179,10 +224,17 @@ async def handler(event):
                     Button.inline(text="➡️", data=1),
                 ],
             ]
-
-            await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-                                            file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
-                                            buttons=buttons)
+            await send_img(
+                event=event,
+                buttons=buttons,
+                file_name=f"{current_word.replace(' ', '')}_en.png",
+                current_word=current_word,
+                lang="en",
+                type_action="edit"
+            )
+            # await event.client.edit_message(event.sender_id, event.original_update.msg_id,
+            #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
+            #                                 buttons=buttons)
             await _update_user_words(user_id, "sport", current_word, "en")
             await update_data_events_db(user_id, "forward_card", {"step": step})
         return
@@ -211,9 +263,17 @@ async def handler(event):
                     Button.inline(text="➡️", data=1),
                 ],
             ]
-            await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-                                            file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
-                                            buttons=buttons)
+            await send_img(
+                event=event,
+                buttons=buttons,
+                file_name=f"{current_word.replace(' ', '')}_en.png",
+                current_word=current_word,
+                lang="en",
+                type_action="edit"
+            )
+            # await event.client.edit_message(event.sender_id, event.original_update.msg_id,
+            #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
+            #                                 buttons=buttons)
             await update_data_events_db(user_id, "backward_card_first", {"step": step})
         else:
             current_word = new_current_word
@@ -225,9 +285,17 @@ async def handler(event):
                     Button.inline(text="➡️", data=1),
                 ],
             ]
-            await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-                                            file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
-                                            buttons=buttons)
+            await send_img(
+                event=event,
+                buttons=buttons,
+                file_name=f"{current_word.replace(' ', '')}_en.png",
+                current_word=current_word,
+                lang="en",
+                type_action="edit"
+            )
+            # await event.client.edit_message(event.sender_id, event.original_update.msg_id,
+            #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
+            #                                 buttons=buttons)
             await _update_user_words(user_id, "sport", current_word, "en")
             await update_data_events_db(user_id, "backward_card", {"step": step})
         return
@@ -400,7 +468,7 @@ async def cards(event):
     return
 
 
-@bot.on(events.NewMessage(pattern="Карточки на основе интересов 🐱"))
+@bot.on(events.NewMessage(pattern="Карточки на основе интересов 👾"))
 async def get_start_cards(event):
     try:
         user_id = event.message.peer_id.user_id
@@ -408,8 +476,10 @@ async def get_start_cards(event):
         user_id = event.original_update.user_id
 
     step = await _get_current_user_step(user_id)
+    print("step", step)
 
     if await is_expected_steps(user_id, [41, 101, 501, 901, 545]):
+        print("if await is_expected_steps(user_id, [41, 101, 501, 901, 545])")
 
         topics = await get_user_topics_db(user_id)
         user_level = await get_user_level_db(user_id)
@@ -421,10 +491,12 @@ async def get_start_cards(event):
             current_word = words_list[0].lower()
 
         else:
+            print("words_list = await build_list_of_words(topics, user_level)")
             words_list = await build_list_of_words(topics, user_level)
             await _update_user_self_words(user_id, words_list)
             current_word = (words_list[0]).lower()
             await _update_current_user_step(user_id, 51)
+        print("word_list", words_list, current_word)
 
         buttons = [
             [
@@ -442,8 +514,16 @@ async def get_start_cards(event):
                "А если устанешь или надоест, можно закончить, нажав на кнопку Завершить\n\n"
 
         await event.client.send_message(event.chat_id, text, buttons=keyboard)
-        await event.client.send_message(event.chat_id, buttons=buttons,
-                                        file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png")
+        await send_img(
+            event=event,
+            buttons=buttons,
+            file_name=f"{current_word.replace(' ', '')}_en.png",
+            current_word=current_word,
+            lang="en",
+            type_action="send"
+        )
+        # await event.client.send_message(event.chat_id, buttons=buttons,
+        #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png")
 
         await _update_user_words(user_id, "sport", current_word, "en")
         await update_data_events_db(user_id, "cards_interests", {"step": step})
@@ -452,7 +532,7 @@ async def get_start_cards(event):
     return
 
 
-@bot.on(events.NewMessage(pattern="Создать свой набор слов 🕊"))
+@bot.on(events.NewMessage(pattern="Создать свой набор слов 🧬"))
 async def create_self_words(event):
     user_id = event.message.peer_id.user_id
     step = await _get_current_user_step(user_id)
@@ -568,7 +648,7 @@ async def get_begin(event):
     user_id = event.message.peer_id.user_id
     if await is_expected_steps(user_id, [61, 62]) and event.message.message not in ("Quiz me 📝", "Поболтать 💌",
                                                                                     "Завершить", "Проверить себя 🧠",
-                                                                                    "Создать свой набор слов 🕊"):
+                                                                                    "Создать свой набор слов 🧬"):
         if event.message.message not in ("/start", "/my_cards", "/interests", "/level", "/reviews"):
             keyboard = await get_keyboard(["Завершить"])
 
@@ -648,7 +728,7 @@ async def get_begin(event):
 
     elif await is_expected_steps(user_id, [2011]) and event.message.message not in ("Quiz me 📝", "Поболтать 💌",
                                                                                     "Завершить", "Проверить себя 🧠",
-                                                                                    "Создать свой набор слов 🕊"):
+                                                                                    "Создать свой набор слов 🧬"):
         if event.message.message not in ("/start", "/my_cards", "/interests", "/level", "/reviews"):
             cur_test_word = await _get_user_test_words(user_id)
             user_words = await get_user_words_db(user_id)
@@ -681,7 +761,7 @@ async def get_begin(event):
             await event.client.send_message(event.chat_id, text, reply_to=event.message.id, buttons=keyboard)
     elif await is_expected_steps(user_id, [2010]) and event.message.message not in ("Quiz me 📝", "Поболтать 💌",
                                                                                     "Завершить", "Проверить себя 🧠",
-                                                                                    "Создать свой набор слов 🕊"):
+                                                                                    "Создать свой набор слов 🧬"):
         if event.message.message not in ("/start", "/my_cards", "/interests", "/level", "/reviews"):
             cur_test_word = await _get_user_test_words(user_id)
             user_words_en = await _get_user_self_words(user_id)
@@ -727,7 +807,7 @@ async def get_begin(event):
 
     elif await is_expected_steps(user_id, [52]) and event.message.message not in ("Quiz me 📝", "Поболтать 💌",
                                                                                     "Завершить", "Проверить себя 🧠",
-                                                                                    "Создать свой набор слов 🕊"):
+                                                                                    "Создать свой набор слов 🧬"):
         last_ts_event = await get_event_from_db(user_id, "message_from_user_conv")
         if last_ts_event is None or await get_diff_between_ts(str(last_ts_event)) > 100:
             cnt_uses = await get_stat_use_link_db(user_id)
@@ -826,8 +906,15 @@ async def testing_words(event):
     async def send_test_word_message(word, step, additional_buttons=[]):
         message_content = "Ура! Это было последнее слово, хороший результат! 😻\n\nЧтобы закончить, нажми на Завершить" \
             if word is None else ""
+        if word:
+            if await check_exist_img(f"/{PATH_IMAGES}/{word.replace(' ', '')}_en.png"):
+                image_file = f"/{PATH_IMAGES}/{word.replace(' ', '')}_en.png"
+            else:
+                await create_img_card(word.replace(' ', '').lower(), f"/{PATH_IMAGES}/{word.replace(' ', '')}_en.png")
+                image_file = f"/{PATH_IMAGES}/{word.replace(' ', '')}_en.png"
+        else:
+            image_file = None
 
-        image_file = None if word is None else f"/{PATH_IMAGES}/{word.replace(' ', '')}_en.png"
         if word is not None:
             buttons = [
                 [
@@ -866,7 +953,7 @@ async def testing_words(event):
             words_list = await _get_user_self_words(user_id)
         cur_test_word = await _get_user_test_words(user_id)
 
-        if not await is_expected_steps(user_id, [3011, 3010]):  # Initial test message for specific steps
+        if not await is_expected_steps(user_id, [3011, 3010]):
             text = "А теперь я буду проверять тебя! 😈 \n\nЯ буду тебе показывать карточку на английском языке, а твоя " \
                    "задача написать мне перевод слова на русском языке, которое было написано с обратной стороны " \
                    "карточки 😊\n\n" \

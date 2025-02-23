@@ -14,7 +14,7 @@ from telethon.tl.types import SendMessageTypingAction
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 
 from db_tools import _update_user_states, _get_current_user_step
-from globals import TOPICS, WORDS
+from globals import TOPICS, WORDS, TRANSLATES
 
 
 PATH_IMAGES = Path(__file__).parent.resolve() / "images"
@@ -66,27 +66,29 @@ async def get_text_from_link(url: str):
     return response.text
 
 
-async def build_img_cards(words):
-    print("build_img_cards")
+async def create_img_card(text, filename):
     base_img = Image.open(PATH_IMAGES / "test.png")
 
-    def create_img_card(image, text, filename):
-        with image.copy() as img:
-            if len(text) < 15:
-                size = 50
-            elif 15 <= len(text) <= 20:
-                size = 40
-            else:
-                size = 35
-            font = ImageFont.truetype("Unbounded-Regular.ttf", size)
-            draw = ImageDraw.Draw(img)
-            w, h = 780, 502
-            draw.text((w // 2, h // 2), text, font=font, fill="black", anchor="mm")
-            img.save(PATH_IMAGES / filename)
+    with base_img.copy() as img:
+        if len(text) < 15:
+            size = 50
+        elif 15 <= len(text) <= 20:
+            size = 40
+        else:
+            size = 35
+        font = ImageFont.truetype("Unbounded-Regular.ttf", size)
+        draw = ImageDraw.Draw(img)
+        w, h = 780, 502
+        draw.text((w // 2, h // 2), text, font=font, fill="black", anchor="mm")
+        img.save(PATH_IMAGES / filename)
+
+
+async def build_img_cards(words):
+    print("build_img_cards")
 
     for word, word_ru in words.items():
-        create_img_card(base_img, word.lower(), f"{word.replace(' ', '').lower()}_en.png")
-        create_img_card(base_img, word_ru.lower(), f"{word.replace(' ', '').lower()}_ru.png")
+        await create_img_card(word.lower(), f"{word.replace(' ', '').lower()}_en.png")
+        await create_img_card(word_ru.lower(), f"{word.replace(' ', '').lower()}_ru.png")
 
     return
 
@@ -177,3 +179,54 @@ async def build_history_message(data):
         result.append(item)
 
     return result
+
+
+async def check_exist_img(file_name: str):
+    """"""
+    file_path = os.path.join("images", file_name)
+
+    return os.path.isfile(file_path)
+
+
+async def send_img(
+    event,
+    buttons,
+    file_name,
+    current_word,
+    lang,
+    type_action
+):
+    """"""
+
+    if await check_exist_img(file_name):
+        print("exist")
+        if type_action == "send":
+            await event.client.send_message(event.chat_id, buttons=buttons,
+                                            file=f"/{PATH_IMAGES}/{file_name}")
+        elif type_action == "edit":
+            await event.client.edit_message(event.sender_id, event.original_update.msg_id,
+                                            file=f"/{PATH_IMAGES}/{file_name}",
+                                            buttons=buttons)
+        else:
+            raise ValueError(f"Invalid action type: {type_action}. Expected 'send' or 'edit'.")
+    else:
+        print("not exist")
+        await create_img_card(current_word.lower(), file_name)
+        if type_action == "send":
+            await event.client.send_message(event.chat_id, buttons=buttons,
+                                            file=f"/{PATH_IMAGES}/{file_name}")
+        elif type_action == "edit":
+            await event.client.edit_message(event.sender_id, event.original_update.msg_id,
+                                            file=f"/{PATH_IMAGES}/{file_name}",
+                                            buttons=buttons)
+        else:
+            raise ValueError(f"Invalid action type: {type_action}. Expected 'send' or 'edit'.")
+    return
+
+
+async def get_translate_word(word: str, from_lang: str):
+    """"""
+    if from_lang == "en":
+        return TRANSLATES[word]
+    else:
+        raise ValueError(f"It is impossible to translate into this language")

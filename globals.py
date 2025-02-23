@@ -47,7 +47,7 @@ TRANSLATES = {
     "referee": "судья",
     "track": "трасса",
     "field": "поле",
-    "athlete": "спорсмен",
+    "athlete": "спортсмен",
     "championship": "чемпионат",
     "tournament": "турнир",
     "stamina": "выносливость",
