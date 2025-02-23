@@ -32,6 +32,7 @@ jobs:
 
       - name: Log system resources before deployment
         run: |
+          sudo chown -R $USER:$USER /root/wordbi_bot
           echo "Logging system resources..."
           echo "Memory usage before deployment:" > /root/wordbi_bot/deploy_log.txt
           free -h >> /root/wordbi_bot/deploy_log.txt 2>&1
