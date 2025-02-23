@@ -183,7 +183,6 @@ async def handler(event):
             new_current_word = current_word
 
         for i in range(len(words_list) - 1):
-            print("for", words_list[i])
             if words_list[i].lower() == current_word.lower():
                 new_current_word = words_list[i + 1].lower()
                 print("new_current_word", new_current_word)
