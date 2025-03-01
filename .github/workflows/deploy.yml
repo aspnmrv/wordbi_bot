@@ -74,16 +74,19 @@ jobs:
           command: |
             echo "Start deploying..."
             cd /root/wordbi_bot
-            git fetch origin >> /root/wordbi_bot/deploy.log 2>&1
+            git fetch --all >> /root/wordbi_bot/deploy.log 2>&1
             git reset --hard origin/main >> /root/wordbi_bot/deploy.log 2>&1
-            git status >> /root/wordbi_bot/deploy.log 2>&1
+            git clean -df >> /root/wordbi_bot/deploy.log 2>&1
             git pull origin main >> /root/wordbi_bot/deploy.log 2>&1
+            git status >> /root/wordbi_bot/deploy.log 2>&1
             source venv/bin/activate >> /root/wordbi_bot/deploy.log 2>&1
             pip install -r requirements.txt >> /root/wordbi_bot/deploy.log 2>&1
             cd bot
             pkill -f main.py || echo "No process found to kill" >> /root/wordbi_bot/deploy.log 2>&1
+            sleep 2
             echo "Starting main.py at $(date)" >> /root/wordbi_bot/deploy.log
             nohup python3 main.py >> /root/wordbi_bot/deploy.log 2>&1 &
+            disown
             echo "Deployment completed" >> /root/wordbi_bot/deploy.log
             cat /root/wordbi_bot/deploy.log
 
