@@ -1,10 +1,8 @@
 
 venv/
 env/
-images/
-data/images/
 .idea/
-!images/test.png
+data/images/*.png
 !data/images/test.png
 
 .env
