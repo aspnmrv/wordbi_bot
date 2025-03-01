@@ -32,7 +32,6 @@ jobs:
       - name: Disable verbose logging
         run: echo 'GITHUB_ACTIONS_RUNNER_VERBOSE=0' >> $GITHUB_ENV
 
-      # Добавлен шаг для тестирования SSH-соединения
       - name: Test SSH connection
         run: |
           echo "Testing SSH connection"
@@ -59,31 +58,31 @@ jobs:
 
       - name: Check system resources before SSH
         run: |
-         echo "Available Disk Space:"
-         df -h
-         echo "Available Memory:"
-         free -h
-         echo "Running Processes:"
-         ps aux --sort=-%mem | head -n 10
+          echo "Available Disk Space:"
+          df -h
+          echo "Available Memory:"
+          free -h
+          echo "Running Processes:"
+          ps aux --sort=-%mem | head -n 10
 
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        command: |
-          echo "Start deploying..."
-          cd /root/wordbi_bot
-          git reset --hard HEAD
-          git pull origin main
-          source venv/bin/activate
-          pip install -r requirements.txt
-          pkill -f main.py || echo "No process found to kill"
-          nohup python3 main.py &
-          echo "Deployment completed"
-          
-          
-          - name: Log system resources after deployment
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          command: |
+            echo "Start deploying..."
+            cd /root/wordbi_bot
+            git reset --hard HEAD
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            pkill -f main.py || echo "No process found to kill"
+            nohup python3 main.py &
+            echo "Deployment completed"
+
+      - name: Log system resources after deployment
         run: |
           echo "Logging system resources after deployment..." >> $GITHUB_WORKSPACE/deploy_log.txt
           free -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
