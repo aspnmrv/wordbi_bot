@@ -71,7 +71,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          script: |
+          command: |
             echo "Start deploying..."
             cd /root/wordbi_bot
             git reset --hard HEAD >> /root/wordbi_bot/deploy.log 2>&1
