@@ -71,7 +71,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          command: |
+          script: |
             echo "Start deploying..." >> /root/wordbi_bot/deploy.log
             cd /root/wordbi_bot
             git fetch --all >> /root/wordbi_bot/deploy.log 2>&1
@@ -79,19 +79,6 @@ jobs:
             git clean -df >> /root/wordbi_bot/deploy.log 2>&1
             git pull origin main >> /root/wordbi_bot/deploy.log 2>&1
             git status >> /root/wordbi_bot/deploy.log 2>&1
-            source venv/bin/activate >> /root/wordbi_bot/deploy.log 2>&1
-            echo "Starting main.py at $(date)" >> /root/wordbi_bot/deploy.log
-            pip install -r requirements.txt >> /root/wordbi_bot/deploy.log 2>&1
-            cd bot
-            pkill -f main.py || echo "No process found to kill" >> /root/wordbi_bot/deploy.log 2>&1
-            sleep 2
-            echo "Starting main.py at $(date)" >> /root/wordbi_bot/deploy.log
-            screen -d -m python3 main.py >> /root/wordbi_bot/deploy.log 2>&1
-            echo "Bot started in screen session with PID $!" >> /root/wordbi_bot/deploy.log
-            ps aux | grep main.py >> /root/wordbi_bot/deploy.log 2>&1
-            dmesg >> /root/wordbi_bot/deploy.log 2>&1
-            echo "Deployment completed at $(date)" >> /root/wordbi_bot/deploy.log
-            tail -n 20 /root/wordbi_bot/deploy.log
       
 
       - name: Log system resources after deployment
