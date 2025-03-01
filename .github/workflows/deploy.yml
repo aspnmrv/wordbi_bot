@@ -27,6 +27,15 @@ jobs:
           echo "Testing SSH connection"
           ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} echo "SSH connection successful"
 
+      - name: Increase swapfile
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 15G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          sudo swapon --show
+
       - name: Log system resources before deployment
         run: |
           echo "Logging system resources..." > $GITHUB_WORKSPACE/deploy_log.txt
