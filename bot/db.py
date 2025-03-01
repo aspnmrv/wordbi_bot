@@ -13,7 +13,6 @@ from datetime import datetime
 
 
 def connect_from_config(file):
-    print("connect_from_config")
     keepalive_kwargs = {
         "keepalives": 1,
         "keepalives_idle": 30,
@@ -33,7 +32,7 @@ def create_pool_from_config(minconn, maxconn, file):
     return pool.SimpleConnectionPool(minconn, maxconn, **config)
 
 
-CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "config", "config.json")
 print("CONFIG_PATH")
 GLOBAL_POOL = create_pool_from_config(MINCONN, MAXCONN, CONFIG_PATH)
 

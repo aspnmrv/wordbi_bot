@@ -17,7 +17,8 @@ from db_tools import _update_user_states, _get_current_user_step
 from globals import TOPICS, WORDS, TRANSLATES
 
 
-PATH_IMAGES = Path(__file__).parent.resolve() / "images"
+PATH_IMAGES = Path(__file__).parent.parent.resolve() / "data" / "images"
+PATH_FONT = Path(__file__).parent.parent.resolve() / "data"
 
 
 async def update_text_from_state_markup(markup, state, topics, name):
@@ -76,7 +77,7 @@ async def create_img_card(text, filename):
             size = 40
         else:
             size = 35
-        font = ImageFont.truetype("Unbounded-Regular.ttf", size)
+        font = ImageFont.truetype(str(PATH_FONT / "Unbounded-Regular.ttf"), size)
         draw = ImageDraw.Draw(img)
         w, h = 780, 502
         draw.text((w // 2, h // 2), text, font=font, fill="black", anchor="mm")

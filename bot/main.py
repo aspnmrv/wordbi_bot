@@ -1,6 +1,7 @@
-import config
 import validators
 import ast
+import os
+import sys
 
 from pathlib import Path
 from telethon.tl.custom import Button
@@ -27,12 +28,19 @@ from db import is_user_exist_db, update_data_users_db, update_data_topics_db, ge
     get_stat_use_link_db, get_history_chat_ellie_db, get_stat_use_mode_db, \
     get_private_db, get_user_for_notify_reviews_db, get_last_message_ellie_db, get_num_translates_db
 
+config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config')
+config_path = os.path.abspath(config_path)
+sys.path.insert(1, config_path)
+
+import config
+
 
 api_id = config.app_id
 api_hash = config.api_hash
 bot_token = config.bot_token
+test_user_id = config.test_user_id
 
-PATH_IMAGES = Path(__file__).parent.resolve() / "images"
+PATH_IMAGES = Path(__file__).parent.parent.resolve() / "data" / "images"
 
 bot = TelegramClient("bot", api_id, api_hash).start(bot_token=bot_token)
 
@@ -150,14 +158,7 @@ async def handler(event):
             lang=lang,
             type_action="edit"
         )
-        # if await check_exist_img(f"{current_word.replace(' ', '')}_{lang}.png"):
-        #     await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-        #                                     file=PATH_IMAGES / f"{current_word.replace(' ', '')}_{lang}.png", buttons=buttons)
-        # else:
-        #     await create_img_card(current_word.lower(), f"{current_word.replace(' ', '').lower()}_{lang}.png")
-        #     await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-        #                                     file=PATH_IMAGES / f"{current_word.replace(' ', '')}_{lang}.png",
-        #                                     buttons=buttons)
+
         await _update_user_words(user_id, "sport", current_word, lang)
         await update_data_events_db(user_id, "refresh_card", {"step": step})
         return
@@ -167,24 +168,19 @@ async def handler(event):
             words_list = await get_user_words_db(user_id)
 
             words_list = words_list[0]
-            print("words_list forward", words_list)
             state = await _get_user_words(user_id)
             current_word = state[0][1].lower()
             new_current_word = current_word
         else:
             state = await _get_user_words(user_id)
-            print("state", state)
             current_word = state[0][1]
 
             words_list = await _get_user_self_words(user_id)
-            print("else words_list forward", words_list)
             new_current_word = current_word
 
         for i in range(len(words_list) - 1):
             if words_list[i].lower() == current_word.lower():
                 new_current_word = words_list[i + 1].lower()
-                print("new_current_word", new_current_word)
-
 
         if new_current_word == current_word:
             buttons = [
@@ -201,9 +197,7 @@ async def handler(event):
                 lang="en",
                 type_action="edit"
             )
-            # await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-            #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
-            #                                 buttons=buttons)
+
             keyboard = await get_keyboard(["Проверить себя 🧠", "Завершить"])
             text = "Карточки закончились, но ты можешь продолжать их листать и переворачивать, " \
                    "а также можешь проверить свои знания по кнопке Проверить себя 🧠\n"
@@ -227,9 +221,7 @@ async def handler(event):
                 lang="en",
                 type_action="edit"
             )
-            # await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-            #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
-            #                                 buttons=buttons)
+
             await _update_user_words(user_id, "sport", current_word, "en")
             await update_data_events_db(user_id, "forward_card", {"step": step})
         return
@@ -266,9 +258,7 @@ async def handler(event):
                 lang="en",
                 type_action="edit"
             )
-            # await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-            #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
-            #                                 buttons=buttons)
+
             await update_data_events_db(user_id, "backward_card_first", {"step": step})
         else:
             current_word = new_current_word
@@ -288,9 +278,7 @@ async def handler(event):
                 lang="en",
                 type_action="edit"
             )
-            # await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-            #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png",
-            #                                 buttons=buttons)
+
             await _update_user_words(user_id, "sport", current_word, "en")
             await update_data_events_db(user_id, "backward_card", {"step": step})
         return
@@ -517,8 +505,6 @@ async def get_start_cards(event):
             lang="en",
             type_action="send"
         )
-        # await event.client.send_message(event.chat_id, buttons=buttons,
-        #                                 file=f"/{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png")
 
         await _update_user_words(user_id, "sport", current_word, "en")
         await update_data_events_db(user_id, "cards_interests", {"step": step})
@@ -571,7 +557,7 @@ async def get_begin(event):
     step = await _get_current_user_step(user_id)
 
     cnt_uses = await get_stat_use_mode_db(user_id)
-    if cnt_uses < LIMIT_USES or cnt_uses is None or user_id == 1233172454:
+    if cnt_uses < LIMIT_USES or cnt_uses is None or user_id == test_user_id:
         if await is_expected_steps(user_id, [42]):
             await _update_current_user_step(user_id, 61)
             keyboard = await get_keyboard(["Завершить"])
@@ -606,7 +592,7 @@ async def get_begin(event):
     last_ts_event = await get_event_from_db(user_id, "talking")
     if last_ts_event is None or await get_diff_between_ts(str(last_ts_event)) > LIMIT_TIME_EVENTS:
         cnt_uses = await get_stat_use_mode_db(user_id)
-        if cnt_uses < LIMIT_USES or cnt_uses is None or user_id == 1233172454:
+        if cnt_uses < LIMIT_USES or cnt_uses is None or user_id == test_user_id:
             if await is_expected_steps(user_id, [42]):
                 await _update_current_user_step(user_id, 62)
                 keyboard = await get_keyboard(["Завершить"])
@@ -655,10 +641,10 @@ async def get_begin(event):
             last_ts_event_conv = await get_event_from_db(user_id, "message_from_user_conv")
             if last_ts_event_quiz is None or await get_diff_between_ts(str(last_ts_event_quiz)) > LIMIT_TIME_EVENTS or \
                     last_ts_event_conv is None or await get_diff_between_ts(str(last_ts_event_conv)) > LIMIT_TIME_EVENTS \
-                    or user_id == 1233172454:
+                    or user_id == test_user_id:
 
                 cnt_uses = await get_stat_use_message_db(user_id)
-                if cnt_uses < LIMIT_USES_MESSAGES or cnt_uses is None or user_id == 1233172454:
+                if cnt_uses < LIMIT_USES_MESSAGES or cnt_uses is None or user_id == test_user_id:
                     if await is_expected_steps(user_id, [61]):
                         await update_messages_db(user_id, "quiz", "user", "ellie", (event.message.message).replace("'", ""))
                         await update_data_events_db(user_id, "message_from_user_quiz", {"step": -1})
@@ -806,7 +792,7 @@ async def get_begin(event):
         last_ts_event = await get_event_from_db(user_id, "message_from_user_conv")
         if last_ts_event is None or await get_diff_between_ts(str(last_ts_event)) > 100:
             cnt_uses = await get_stat_use_link_db(user_id)
-            if cnt_uses < LIMIT_LINK_USES or cnt_uses is None or user_id == 1233172454:
+            if cnt_uses < LIMIT_LINK_USES or cnt_uses is None or user_id == test_user_id:
                 await event.client.send_message(event.chat_id, "Формирую список слов..",
                                                 reply_to=event.message.id, buttons=Button.clear())
                 try:
@@ -1133,7 +1119,7 @@ async def get_fiton(event):
     """"""
     user_id = event.message.peer_id.user_id
 
-    if user_id in (1233172454, 267560138):
+    if user_id == test_user_id:
         chats = await get_user_for_notify_reviews_db()
 
         if chats:
@@ -1155,7 +1141,7 @@ async def get_delos(event):
     """"""
     user_id = event.message.peer_id.user_id
 
-    if user_id in (1233172454, 267560138):
+    if user_id == test_user_id:
         data = await get_private_db()
 
         if data:

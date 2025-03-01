@@ -2,8 +2,10 @@
 venv/
 env/
 images/
+data/images/
 .idea/
 !images/test.png
+!data/images/test.png
 
 .env
 config.json
@@ -20,4 +22,3 @@ __pycache__/
 logs/
 *.log
 *.sqlite3
-

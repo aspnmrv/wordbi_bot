@@ -3,12 +3,12 @@ name: Deploy Bot
 on:
   push:
     branches:
-      - main  # или другая основная ветка
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04  # Или другой runner с нужными ресурсами
-    timeout-minutes: 90  # Увеличиваем время на выполнение до 90 минут
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
@@ -54,7 +54,7 @@ jobs:
           top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           echo "Disk usage before deployment:" >> $GITHUB_WORKSPACE/deploy_log.txt
           df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
-          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов для проверки
+          cat $GITHUB_WORKSPACE/deploy_log.txt
 
       - name: Check system resources before SSH
         run: |
@@ -88,14 +88,14 @@ jobs:
           free -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           top -n 1 | head -n 10 >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
           df -h >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
-          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов для проверки
+          cat $GITHUB_WORKSPACE/deploy_log.txt
 
       - name: Check processes after deployment
         run: |
           ps aux | grep python >> $GITHUB_WORKSPACE/deploy_log.txt 2>&1
-          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод логов для проверки
+          cat $GITHUB_WORKSPACE/deploy_log.txt
 
       - name: Display the logs from deploy_log.txt
         run: |
           echo "Displaying deploy logs..."
-          cat $GITHUB_WORKSPACE/deploy_log.txt  # Вывод всех логов в конце
+          cat $GITHUB_WORKSPACE/deploy_log.txt
