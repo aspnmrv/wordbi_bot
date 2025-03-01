@@ -80,6 +80,7 @@ jobs:
             git pull origin main >> /root/wordbi_bot/deploy.log 2>&1
             git status >> /root/wordbi_bot/deploy.log 2>&1
             source venv/bin/activate >> /root/wordbi_bot/deploy.log 2>&1
+            echo "Starting main.py at $(date)" >> /root/wordbi_bot/deploy.log
             pip install -r requirements.txt >> /root/wordbi_bot/deploy.log 2>&1
             cd bot
             pkill -f main.py || echo "No process found to kill" >> /root/wordbi_bot/deploy.log 2>&1

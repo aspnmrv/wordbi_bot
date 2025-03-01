@@ -1,7 +1,6 @@
 import ast
 import os
 import sys
-import requests
 
 from pathlib import Path
 from telethon.tl.custom import Button
