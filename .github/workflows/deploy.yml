@@ -71,21 +71,18 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          script: |
-            echo "Start deploying..."
-            cd /root/wordbi_bot
-            git fetch origin >> /root/wordbi_bot/deploy.log 2>&1
-            git reset --hard origin/main >> /root/wordbi_bot/deploy.log 2>&1
-            git status >> /root/wordbi_bot/deploy.log 2>&1
-            git pull origin main >> /root/wordbi_bot/deploy.log 2>&1
-            source venv/bin/activate >> /root/wordbi_bot/deploy.log 2>&1
-            pip install -r requirements.txt >> /root/wordbi_bot/deploy.log 2>&1
-            cd bot
-            pkill -f main.py || echo "No process found to kill" >> /root/wordbi_bot/deploy.log 2>&1
-            echo "Starting main.py at $(date)" >> /root/wordbi_bot/deploy.log
-            nohup python3 main.py >> /root/wordbi_bot/deploy.log 2>&1 &
-            echo "Deployment completed" >> /root/wordbi_bot/deploy.log
-            cat /root/wordbi_bot/deploy.log
+          command: |
+            cd /root/wordbi_bot && \
+            git fetch origin && \
+            git reset --hard origin/main && \
+            git pull origin main && \
+            source venv/bin/activate && \
+            pip install -r requirements.txt && \
+            cd bot && \
+            pkill -f main.py || echo "No process found to kill" && \
+            sleep 2 && \
+            nohup /root/wordbi_bot/venv/bin/python3 /root/wordbi_bot/bot/main.py >> /root/wordbi_bot/deploy.log 2>&1 & \
+            disown
 
       - name: Log system resources after deployment
         run: |
