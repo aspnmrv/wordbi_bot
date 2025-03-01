@@ -71,13 +71,14 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          command: |
+          script: |
             echo "Start deploying..."
             cd /root/wordbi_bot
             git reset --hard HEAD
             git pull origin main
             source venv/bin/activate
             pip install -r requirements.txt
+            cd bot
             pkill -f main.py || echo "No process found to kill"
             nohup python3 main.py &
             echo "Deployment completed"
