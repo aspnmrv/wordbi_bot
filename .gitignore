@@ -20,3 +20,5 @@ __pycache__/
 logs/
 *.log
 *.sqlite3
+*.out
+*.txt
