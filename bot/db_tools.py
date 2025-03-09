@@ -97,7 +97,6 @@ async def _get_user_states(user_id, field):
     cur.execute(query)
     data = cur.fetchall()
     CONN.commit()
-    print(data)
     if data:
         data = ast.literal_eval(data[0][0])
 
@@ -312,7 +311,6 @@ async def _get_user_choose_topic(user_id):
     cur.execute(query)
     data = cur.fetchall()
     CONN.commit()
-    print(data)
 
     if data:
         data = ast.literal_eval(data[0][0])
@@ -412,7 +410,6 @@ async def _get_user_test_words(user_id):
     cur.execute(query)
     data = cur.fetchall()
     CONN.commit()
-    print(data)
     if data:
         data = ast.literal_eval(data[0][0])
 

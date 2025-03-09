@@ -3,26 +3,16 @@ import ast
 import sys
 import os
 
-# # Получаем путь к директории config
-# config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config')
-# config_path = os.path.abspath(config_path)
-#
-# # Проверим, что файл config.py находится в этой директории
-# print("config_path:", config_path)
-# print("Содержимое директории:", os.listdir(config_path))
-
-config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config')
-config_path = os.path.abspath(config_path)
-sys.path.insert(1, config_path)
-print("config_path", config_path)
-
 import config
-print(config)
 
 from openai import AsyncOpenAI
 from db import update_error_logs_db
 from globals import MODEL, TEMPERATURE, MAX_TOKENS
 
+
+config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config')
+config_path = os.path.abspath(config_path)
+sys.path.insert(1, config_path)
 
 openai.api_key = config.api_key
 
@@ -31,8 +21,6 @@ client = AsyncOpenAI(
 )
 
 model = MODEL
-
-print(model)
 
 
 async def get_response(user_id, history, message, words, level):

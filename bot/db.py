@@ -25,15 +25,12 @@ def connect_from_config(file):
 
 
 def create_pool_from_config(minconn, maxconn, file):
-    print("create_pool_from_config")
     with open(file, 'r') as fp:
         config = json.load(fp)
-        print(config)
     return pool.SimpleConnectionPool(minconn, maxconn, **config)
 
 
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "config", "config.json")
-print("CONFIG_PATH")
 GLOBAL_POOL = create_pool_from_config(MINCONN, MAXCONN, CONFIG_PATH)
 
 
@@ -194,17 +191,13 @@ async def get_user_words_db(user_id):
 
 async def update_user_words_db(user_id, words, link) -> None:
     """"""
-    print("update_user_words_db")
     conn = GLOBAL_POOL.getconn()
     conn.set_client_encoding('UTF8')
     cur = conn.cursor()
-    print("words", words)
     result = {
         "en": list(words.keys()),
         "ru": [i.lower() for i in list(words.values())]
     }
-
-    print(result)
 
     created_at = datetime.now()
     query = f"""
@@ -439,7 +432,6 @@ async def get_history_chat_ellie_db(user_id, mode):
     """
     cur.execute(query)
     data = cur.fetchall()
-    print("data", data)
     conn.commit()
     GLOBAL_POOL.putconn(conn)
 
@@ -470,7 +462,6 @@ async def get_last_message_ellie_db(user_id):
     """
     cur.execute(query)
     data = cur.fetchall()
-    print("data", data)
     conn.commit()
     GLOBAL_POOL.putconn(conn)
 

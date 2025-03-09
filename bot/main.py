@@ -2,6 +2,7 @@ import ast
 import os
 import sys
 import requests
+import config
 
 from pathlib import Path
 from telethon.tl.custom import Button
@@ -18,7 +19,7 @@ from globals import TOPICS, WORDS, TRANSLATES, LIMIT_TIME_EVENTS, LIMIT_USES, LI
 from ellie import get_response, build_cards_from_text, get_conversations, get_translate
 
 from tools import update_text_from_state_markup, get_keyboard, find_file, is_expected_steps, \
-    get_text_from_link, build_img_cards, get_proposal_topics, build_markup, get_state_markup, \
+    build_img_cards, get_proposal_topics, build_markup, get_state_markup, \
     match_topics_name, get_diff_between_ts, build_list_of_words, build_history_message, send_img, check_exist_img, \
     create_img_card, get_translate_word
 
@@ -31,8 +32,6 @@ from db import is_user_exist_db, update_data_users_db, update_data_topics_db, ge
 config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config')
 config_path = os.path.abspath(config_path)
 sys.path.insert(1, config_path)
-
-import config
 
 
 api_id = config.app_id
@@ -459,10 +458,8 @@ async def get_start_cards(event):
         user_id = event.original_update.user_id
 
     step = await _get_current_user_step(user_id)
-    print("step", step)
 
     if await is_expected_steps(user_id, [41, 101, 501, 901, 545]):
-        print("if await is_expected_steps(user_id, [41, 101, 501, 901, 545])")
 
         topics = await get_user_topics_db(user_id)
         user_level = await get_user_level_db(user_id)
@@ -474,12 +471,10 @@ async def get_start_cards(event):
             current_word = words_list[0].lower()
 
         else:
-            print("words_list = await build_list_of_words(topics, user_level)")
             words_list = await build_list_of_words(topics, user_level)
             await _update_user_self_words(user_id, words_list)
             current_word = (words_list[0]).lower()
             await _update_current_user_step(user_id, 51)
-        print("word_list", words_list, current_word)
 
         buttons = [
             [
@@ -567,7 +562,6 @@ async def get_begin(event):
 
             async with event.client.action(user_id, "typing"):
                 text = await get_response(user_id=user_id, history="", message="", words=words_list, level=level)
-                print("text", text)
 
             buttons = [
                 [
@@ -781,9 +775,8 @@ async def get_begin(event):
                 Button.url(text="Оставить email", url="https://wordbi.com/#subscribe"),
             ],
         ]
-        text = "Спасибо! А если хочешь получить эксклюзивный доступ одним из первых, " \
-               "то можешь оставить свой email вот тут: https://wordbi.com/#subscribe"
-        await event.client.send_message(event.chat_id, text, buttons=buttons)
+        text = "Спасибо! 💜"
+        await event.client.send_message(event.chat_id, text)
         await update_data_events_db(user_id, "success_review", {"step": -1})
 
     elif await is_expected_steps(user_id, [52]) and event.message.message not in ("Quiz me 📝", "Поболтать 💌",

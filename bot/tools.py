@@ -43,6 +43,7 @@ async def get_keyboard(text_keys: list) -> list:
 
 
 async def find_file(pattern, path):
+    """"""
     result = []
     for root, dirs, files in os.walk(path):
         for name in files:
@@ -68,6 +69,7 @@ async def get_text_from_link(url: str):
 
 
 async def create_img_card(text, filename):
+    """"""
     base_img = Image.open(PATH_IMAGES / "test.png")
 
     with base_img.copy() as img:
@@ -85,7 +87,7 @@ async def create_img_card(text, filename):
 
 
 async def build_img_cards(words):
-    print("build_img_cards")
+    """"""
 
     for word, word_ru in words.items():
         await create_img_card(word.lower(), f"{word.replace(' ', '').lower()}_en.png")
@@ -150,7 +152,6 @@ async def get_diff_between_ts(last_ts):
 async def build_list_of_words(user_topics: list, user_level: str):
     """"""
     total_words = list()
-    print(user_topics, user_level)
 
     if "Beginner" in user_level:
         level_key = "a"
@@ -163,8 +164,6 @@ async def build_list_of_words(user_topics: list, user_level: str):
         if topic in user_topics:
             total_words.append(values[level_key])
 
-    print(total_words)
-
     return random.sample(list(itertools.chain(*total_words)), 10)
 
 
@@ -172,7 +171,6 @@ async def build_history_message(data):
     """"""
     result = list()
     for b in data:
-        print("b", b)
         if b[0] == "user":
             item = {"role": "user", "content": b[2]}
         else:
@@ -200,7 +198,6 @@ async def send_img(
     """"""
 
     if await check_exist_img(file_name):
-        print("exist")
         if type_action == "send":
             await event.client.send_message(event.chat_id, buttons=buttons,
                                             file=f"/{PATH_IMAGES}/{file_name}")
@@ -211,7 +208,6 @@ async def send_img(
         else:
             raise ValueError(f"Invalid action type: {type_action}. Expected 'send' or 'edit'.")
     else:
-        print("not exist")
         await create_img_card(current_word.lower(), file_name)
         if type_action == "send":
             await event.client.send_message(event.chat_id, buttons=buttons,
