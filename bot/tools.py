@@ -13,12 +13,14 @@ from telethon.tl.types import InputPeerChannel
 from telethon.tl.types import SendMessageTypingAction
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 
-from db_tools import _update_user_states, _get_current_user_step
+from db_tools import _update_user_states, _get_current_user_step, _get_user_words
+from db import get_user_topics_db, get_user_level_db
 from globals import TOPICS, WORDS, TRANSLATES
+from paths import PATH_IMAGES, PATH_FONT
 
 
-PATH_IMAGES = Path(__file__).parent.parent.resolve() / "data" / "images"
-PATH_FONT = Path(__file__).parent.parent.resolve() / "data"
+# PATH_IMAGES = Path(__file__).resolve().parents[1] / "data" / "images"
+# PATH_FONT = Path(__file__).parent.parent.resolve() / "data"
 
 
 async def update_text_from_state_markup(markup, state, topics, name):
@@ -227,3 +229,18 @@ async def get_translate_word(word: str, from_lang: str):
         return TRANSLATES[word]
     else:
         raise ValueError(f"It is impossible to translate into this language")
+
+
+async def get_code_fill_form(user_id):
+    user_topics = await get_user_topics_db(user_id)
+    user_level = await get_user_level_db(user_id)
+    user_words = await _get_user_words(user_id)
+    if not user_topics and not user_level:
+        return -1
+    elif not user_topics:
+        return -2
+    elif not user_level:
+        return -3
+    elif not user_words:
+        return -4
+    return 0

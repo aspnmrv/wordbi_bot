@@ -10,7 +10,7 @@ WORDS = {
     "sport": {
         "a": ["team", "work out", "coach", "score", "warm up", "lose", "draw", "referee", "track", "field"],
         "b": ["athlete", "championship", "tournament", "stamina", "strategy", "penalty", "league", "fitness", "dribble", "setback"],
-        "c": ["endurance", "agility", "coordination", "cool down", "push through", "pace oneself ", "resilience", "Elusive", "breakthrough", "peak performance"],
+        "c": ["endurance", "agility", "coordination", "cool down", "push through", "pace oneself", "resilience", "elusive", "breakthrough", "peak performance"],
     },
     "travel": {
         "a": ["trip", "map", "ticket", "to go to", "to leave", "suitcase", "luggage", "to check in", "do the sights", "go abroad"],
@@ -64,7 +64,7 @@ TRANSLATES = {
     "push through": "преодолеть",
     "pace oneself": "распределять силы",
     "resilience": "устойчивость",
-    "Elusive": "неуловимый",
+    "elusive": "неуловимый",
     "breakthrough": "прорыв",
     "peak performance": "пиковая форма",
     "trip": "поездка",

@@ -3,7 +3,7 @@ import ast
 import sys
 import os
 
-import config
+from config import config
 
 from openai import AsyncOpenAI
 from db import update_error_logs_db
