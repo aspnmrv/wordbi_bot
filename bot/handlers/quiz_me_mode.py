@@ -32,6 +32,11 @@ async def get_begin(event):
 
             buttons = [[Button.inline(text="Перевести", data=49)]]
             await event.client.send_message(event.chat_id, text, buttons=buttons, reply_to=event.message.id)
+            await event.client.send_message(
+                event.chat_id,
+                "Нажми Завершить, если захочешь закончить 🤗",
+                buttons=await get_keyboard(["Завершить"])
+            )
             await update_messages_db(user_id, "quiz", "ellie", "user", text.replace("'", ""))
             await update_data_events_db(user_id, "quiz_me", {"step": step})
     else:
