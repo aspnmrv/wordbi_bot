@@ -1,4 +1,5 @@
 from telethon import events, Button
+
 from db_tools import _get_current_user_step, _get_user_self_words
 from db import (
     get_stat_use_message_db,
@@ -31,7 +32,8 @@ async def dialog_with_ellie(event):
         keyboard = await get_keyboard(["Завершить"])
         await event.client.send_message(
             event.chat_id,
-            "Чтобы воспользоваться командами из меню, необходимо закончить диалог с Ellie по кнопке Завершить 🙂",
+            "Чтобы воспользоваться командами из меню, необходимо "
+            "закончить диалог с Ellie по кнопке Завершить 🙂",
             reply_to=event.message.id,
             buttons=keyboard
         )
@@ -64,7 +66,11 @@ async def dialog_with_ellie(event):
                     await event.client.send_message(event.chat_id, text, reply_to=event.message.id, buttons=buttons)
                     await update_data_events_db(user_id, "message_to_user_quiz", {"step": -1})
                 else:
-                    await event.client.send_message(event.chat_id, "Что-то сломалось 😣\n\nУже чиним, попробуй позже", buttons=keyboard)
+                    await event.client.send_message(
+                        event.chat_id,
+                        "Что-то сломалось 😣\n\nУже чиним, попробуй позже",
+                        buttons=keyboard
+                    )
             elif await is_expected_steps(user_id, [62]):
                 await update_messages_db(user_id, "conversation", "user", "ellie", message_text)
                 await update_data_events_db(user_id, "message_from_user_conv", {"step": -1})
@@ -79,10 +85,20 @@ async def dialog_with_ellie(event):
                     await event.client.send_message(event.chat_id, text, reply_to=event.message.id, buttons=buttons)
                     await update_data_events_db(user_id, "message_to_user_conv", {"step": -1})
                 else:
-                    await event.client.send_message(event.chat_id, "Что-то сломалось 😣\n\nУже чиним, попробуй позже", buttons=keyboard)
+                    await event.client.send_message(
+                        event.chat_id,
+                        "Что-то сломалось 😣\n\nУже чиним, попробуй позже",
+                        buttons=keyboard
+                    )
         else:
-            await event.client.send_message(event.chat_id, "Слишком много запросов за сегодня 🙂")
+            await event.client.send_message(
+                event.chat_id,
+                "Слишком много запросов за сегодня 🙂"
+            )
             await update_data_events_db(user_id, "message_from_user_error", {"step": -1, "error": "limit"})
     else:
-        await event.client.send_message(event.chat_id, "Слишком частые запросы!\n\nПопробуй через несколько минут 🙂")
+        await event.client.send_message(
+            event.chat_id,
+            "Слишком частые запросы!\n\nПопробуй через несколько минут 🙂"
+        )
         await update_data_events_db(user_id, "message_from_user_error", {"step": -1, "error": "flood"})

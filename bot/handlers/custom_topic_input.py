@@ -40,10 +40,9 @@ async def handle_custom_topic_input(event):
         return
 
     last_ts_event = await get_event_from_db(user_id, "message_from_user_conv")
-    print("last_ts_event", last_ts_event)
 
     cnt_uses = await get_stat_use_link_db(user_id)
-    print('cnt_uses', cnt_uses)
+
     if cnt_uses >= LIMIT_LINK_USES and user_id != test_user_id:
         await event.client.send_message(event.chat_id, "Слишком много запросов за сегодня 🙂")
         await update_data_events_db(user_id, "cards_from_link_error", {"step": -1, "error": "limit"})
@@ -57,16 +56,28 @@ async def handle_custom_topic_input(event):
 
         if not card_words:
             keyboard = await get_keyboard(["Завершить"])
-            await event.client.send_message(event.chat_id, "Что-то сломалось 😣\n\nУже чиним, попробуй позже", buttons=keyboard)
+            await event.client.send_message(
+                event.chat_id,
+                "Что-то сломалось 😣\n\nУже чиним, попробуй позже",
+                buttons=keyboard
+            )
         elif card_words == "None":
             keyboard = await get_keyboard(["Завершить"])
-            await event.client.send_message(event.chat_id, "Кажется, выбранные темы слишком специфичны 😔\n\nПопробуй выбрать другие темы 💜", buttons=keyboard)
+            await event.client.send_message(
+                event.chat_id,
+                "Кажется, выбранные темы слишком специфичны 😔\n\nПопробуй выбрать другие темы 💜",
+                buttons=keyboard
+            )
             await update_data_events_db(user_id, "cards_from_link_error", {"step": -1, "error": "specific"})
         else:
             card_words = ast.literal_eval(card_words)
             if not isinstance(card_words, dict):
                 keyboard = await get_keyboard(["Завершить"])
-                await event.client.send_message(event.chat_id, "Упс..произошла какая-то ошибка. Меня уже чинят, попробуй попозже 💜", buttons=keyboard)
+                await event.client.send_message(
+                    event.chat_id,
+                    "Упс..произошла какая-то ошибка. Меня уже чинят, попробуй попозже 💜",
+                    buttons=keyboard
+                )
             else:
                 await _update_user_self_words(user_id, card_words)
                 fixed_card_words = {word.replace('/', ''): translate.replace('/', '') for word, translate in card_words.items()}
@@ -75,10 +86,18 @@ async def handle_custom_topic_input(event):
                 await _update_user_words(user_id, "self", "", "en")
                 await _update_user_choose_topic(user_id, "self")
                 await update_user_words_db(user_id, fixed_card_words, message_text)
-                await event.client.send_message(event.chat_id, "Чтобы увидеть карточки, жмякай на Увидеть карточки 💜", buttons=keyboard)
+                await event.client.send_message(
+                    event.chat_id,
+                    "Чтобы увидеть карточки, жмякай на Увидеть карточки 💜",
+                    buttons=keyboard
+                )
                 await update_data_events_db(user_id, "cards_from_link_success", {"step": -1})
                 await _update_current_user_step(user_id, 101)
     except Exception:
         keyboard = await get_keyboard(["Завершить"])
-        await event.client.send_message(event.chat_id, "Упс..произошла какая-то ошибка. Меня уже чинят, попробуй попозже 💜", buttons=keyboard)
+        await event.client.send_message(
+            event.chat_id,
+            "Упс..произошла какая-то ошибка. Меня уже чинят, попробуй попозже 💜",
+            buttons=keyboard
+        )
         await update_data_events_db(user_id, "cards_from_link_error", {"step": -1, "error": "api"})

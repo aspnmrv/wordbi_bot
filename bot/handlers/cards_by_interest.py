@@ -1,4 +1,5 @@
 from telethon import events, Button
+
 from tools import get_keyboard, send_img, build_list_of_words, is_expected_steps
 from db_tools import (
     _get_current_user_step,

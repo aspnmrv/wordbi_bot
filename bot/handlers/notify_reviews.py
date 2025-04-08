@@ -1,4 +1,5 @@
 from telethon import events, Button
+
 from db import get_user_for_notify_reviews_db, update_data_events_db
 from config.config import test_user_id
 from bot_instance import bot
@@ -13,7 +14,7 @@ async def get_fiton(event):
 
         if chats:
             text = (
-                "Псс..Я заметил, что ты уже пользовался функционалом. Буду рад, если оставишь отзыв 💜\n\n"
+                "Псс..Я заметил, что ты уже пользовался функционалом. Буду рад, если оставишь отзыв 💜\n\n. "
                 "Напомню, чтобы оставить отзыв, можно воспользоваться командой /reviews\n"
             )
             for chat in chats:

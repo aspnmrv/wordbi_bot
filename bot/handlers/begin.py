@@ -1,6 +1,5 @@
-# handlers/begin.py
-
 from telethon import events
+
 from globals import TOPICS
 from tools import get_keyboard, get_proposal_topics, match_topics_name, get_state_markup, is_expected_steps
 from db_tools import (

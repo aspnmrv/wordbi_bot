@@ -5,7 +5,6 @@ import os
 
 from pathlib import Path
 
-# DB_PATH = Path(__file__).parent.parent.resolve() / "data"
 CONN = sqlite3.connect("sophie.db")
 
 

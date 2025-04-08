@@ -7,6 +7,7 @@ from config import config
 
 from openai import AsyncOpenAI
 from db import update_error_logs_db
+from typing import List, Dict, Optional
 from globals import MODEL, TEMPERATURE, MAX_TOKENS
 
 
@@ -23,7 +24,13 @@ client = AsyncOpenAI(
 model = MODEL
 
 
-async def get_response(user_id, history, message, words, level):
+async def get_response(
+    user_id: int,
+    history: List[Dict[str, str]],
+    message: str,
+    words: List[str],
+    level: str
+) -> Optional[str]:
     """"""
     try:
         content = f"""You are a virtual English teacher named Ellie. Your task is to play the game "Quiz me" with \
@@ -59,15 +66,17 @@ You should offer the user the next word from the list.]
             max_tokens=MAX_TOKENS
         )
 
-        print(chat_completion)
-
         return chat_completion.choices[0].message.content
     except Exception as e:
         await update_error_logs_db(user_id, e)
         return None
 
 
-async def build_cards_from_text(topics, level, user_id):
+async def build_cards_from_text(
+    topics: List[str],
+    level: str,
+    user_id: int
+) -> Optional[str]:
     """"""
     try:
         content = f'Your task is to identify 10 keywords that are most specific to the topics ' \
@@ -116,7 +125,14 @@ async def build_cards_from_text(topics, level, user_id):
         return None
 
 
-async def get_conversations(user_id, history, message, words, topics, level):
+async def get_conversations(
+    user_id: int,
+    history: List[Dict[str, str]],
+    message: str,
+    words: List[str],
+    topics: List[str],
+    level: str
+) -> Optional[str]:
     """"""
     try:
         content = f"""You are a virtual English teacher named Ellie. Your task is to chat with \
@@ -159,7 +175,7 @@ Don't ask the user for the meaning of words]
        return None
 
 
-async def get_translate(user_id, message):
+async def get_translate(user_id: int, message: str) -> Optional[str]:
     """"""
     try:
         content = f"""You are a virtual English teacher named Ellie. Your task is to translate the text into Russian. \

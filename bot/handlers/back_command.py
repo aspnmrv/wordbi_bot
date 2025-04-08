@@ -1,5 +1,5 @@
 from telethon import events
-from db_tools import _get_current_user_step
+
 from tools import is_expected_steps
 from handlers.start import start
 from handlers.begin import begin

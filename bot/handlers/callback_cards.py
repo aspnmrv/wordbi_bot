@@ -8,8 +8,6 @@ from db_tools import (
 from db import (
     get_user_words_db, update_data_events_db, get_last_message_ellie_db, get_num_translates_db
 )
-from ellie import get_translate
-from tools import build_markup, update_text_from_state_markup, get_state_markup
 from bot_instance import bot
 
 
@@ -29,7 +27,6 @@ async def handle_card_callback(event):
         ]]
 
         user_self_words = await _get_user_self_words(user_id)
-        print("user_self_words: ", user_self_words)
         lang = "ru" if current_lang == "en" else "en"
 
         if lang == "ru":

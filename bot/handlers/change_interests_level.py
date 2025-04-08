@@ -1,4 +1,5 @@
 from telethon import events, Button
+
 from db_tools import _get_current_user_step, _update_current_user_step
 from db import update_data_events_db, get_user_level_db, get_user_topics_db
 from tools import get_keyboard, is_expected_steps, get_code_fill_form
@@ -15,7 +16,11 @@ async def change_level(event):
         await update_data_events_db(user_id, "change_level", {"step": step})
         code = await get_code_fill_form(user_id)
         if code == -1:
-            await event.client.send_message(event.chat_id, "Еще не выбраны настройки ☺️\n\nНажимай на /start", buttons=Button.clear())
+            await event.client.send_message(
+                event.chat_id,
+                "Еще не выбраны настройки ☺️\n\nНажимай на /start",
+                buttons=Button.clear()
+            )
             await update_data_events_db(user_id, "change_interests", {"step": -1, "error": "without users"})
         elif code == -2:
             await update_data_events_db(user_id, "change_interests", {"step": -1, "error": "without_interests"})

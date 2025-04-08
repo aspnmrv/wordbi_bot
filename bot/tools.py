@@ -12,6 +12,9 @@ from telethon import TelegramClient, events, sync, functions
 from telethon.tl.types import InputPeerChannel
 from telethon.tl.types import SendMessageTypingAction
 from PIL import Image, ImageDraw, ImageFont, ImageColor
+from telethon.events import NewMessage
+from telethon.tl.custom import Button
+from typing import List, Literal, Tuple, Dict, Optional, Any
 
 from db_tools import _update_user_states, _get_current_user_step, _get_user_words
 from db import get_user_topics_db, get_user_level_db
@@ -19,11 +22,12 @@ from globals import TOPICS, WORDS, TRANSLATES
 from paths import PATH_IMAGES, PATH_FONT
 
 
-# PATH_IMAGES = Path(__file__).resolve().parents[1] / "data" / "images"
-# PATH_FONT = Path(__file__).parent.parent.resolve() / "data"
-
-
-async def update_text_from_state_markup(markup, state, topics, name):
+async def update_text_from_state_markup(
+    markup: Any,
+    state: List[str],
+    topics: List[str],
+    name: str
+) -> Any:
     """Forming text for buttons depending on their state"""
     for elem in range(len(state)):
         if topics[elem] == name:
@@ -36,7 +40,7 @@ async def update_text_from_state_markup(markup, state, topics, name):
     return markup
 
 
-async def get_keyboard(text_keys: list) -> list:
+async def get_keyboard(text_keys: List[str]) -> List[List[Button]]:
     """"""
     keyboard = list()
     for key in range(len(text_keys)):
@@ -44,7 +48,7 @@ async def get_keyboard(text_keys: list) -> list:
     return keyboard
 
 
-async def find_file(pattern, path):
+async def find_file(pattern: str, path: str) -> List[str]:
     """"""
     result = []
     for root, dirs, files in os.walk(path):
@@ -54,8 +58,9 @@ async def find_file(pattern, path):
     return result
 
 
-async def is_expected_steps(user_id: int, expected_steps: list) -> bool:
+async def is_expected_steps(user_id: int, expected_steps: List[Any]) -> bool:
     """Checking if a user exists in certain steps"""
+
     current_step = await _get_current_user_step(user_id)
 
     if current_step in expected_steps:
@@ -64,14 +69,9 @@ async def is_expected_steps(user_id: int, expected_steps: list) -> bool:
         return False
 
 
-async def get_text_from_link(url: str):
-    """"""
-    response = requests.get(url)
-    return response.text
+async def create_img_card(text: str, filename: str) -> None:
+    """Create a new card for a word"""
 
-
-async def create_img_card(text, filename):
-    """"""
     base_img = Image.open(PATH_IMAGES / "test.png")
 
     with base_img.copy() as img:
@@ -88,7 +88,7 @@ async def create_img_card(text, filename):
         img.save(PATH_IMAGES / filename)
 
 
-async def build_img_cards(words):
+async def build_img_cards(words: Dict[str, str]) -> None:
     """"""
 
     for word, word_ru in words.items():
@@ -98,7 +98,7 @@ async def build_img_cards(words):
     return
 
 
-async def get_proposal_topics(topics, states=None):
+async def get_proposal_topics(topics: List[str], states: Optional[List[str]] = None) -> List[List[Button]]:
     """"""
     if states is None:
         buttons = [[Button.inline(text=topic, data=topic)] for topic in topics]
@@ -108,7 +108,7 @@ async def get_proposal_topics(topics, states=None):
     return buttons
 
 
-async def build_markup(topics, current_state):
+async def build_markup(topics: List[str], current_state: List[str]) -> List[List[Button]]:
     """"""
     markup = [
         [
@@ -119,8 +119,9 @@ async def build_markup(topics, current_state):
     return markup
 
 
-async def get_state_markup(markup, user_id):
+async def get_state_markup(markup: Any, user_id: int) -> List[str]:
     """Forming buttons and their states for the user"""
+
     state = list()
 
     for row in range(len(markup.rows)):
@@ -132,16 +133,18 @@ async def get_state_markup(markup, user_id):
     return state
 
 
-async def match_topics_name(topics: list) -> list:
+async def match_topics_name(topics: List[str]) -> List[str]:
     """Topic name matching"""
+
     match_topics = list()
     for topic in topics:
         match_topics.append(TOPICS[topic])
     return match_topics
 
 
-async def get_diff_between_ts(last_ts):
-    """"""
+async def get_diff_between_ts(last_ts: Optional[str]) -> float:
+    """Returns the difference between two timestamps in seconds"""
+
     if last_ts is not None:
         current_time = datetime.now()
         last_ts = datetime.strptime(last_ts, "%Y-%m-%d %H:%M:%S.%f")
@@ -151,8 +154,9 @@ async def get_diff_between_ts(last_ts):
         return 1000
 
 
-async def build_list_of_words(user_topics: list, user_level: str):
-    """"""
+async def build_list_of_words(user_topics: List[str], user_level: str) -> List[str]:
+    """Building a word list for the user depending on the level"""
+
     total_words = list()
 
     if "Beginner" in user_level:
@@ -169,7 +173,7 @@ async def build_list_of_words(user_topics: list, user_level: str):
     return random.sample(list(itertools.chain(*total_words)), 10)
 
 
-async def build_history_message(data):
+async def build_history_message(data: List[Tuple[str, str, str]]) -> List[Dict[str, str]]:
     """"""
     result = list()
     for b in data:
@@ -182,22 +186,23 @@ async def build_history_message(data):
     return result
 
 
-async def check_exist_img(file_name: str):
-    """"""
+async def check_exist_img(file_name: str) -> bool:
+    """Checking if a file with this name exists"""
+
     file_path = os.path.join("images", file_name)
 
     return os.path.isfile(file_path)
 
 
 async def send_img(
-    event,
-    buttons,
-    file_name,
-    current_word,
-    lang,
-    type_action
-):
-    """"""
+    event: NewMessage.Event,
+    buttons: List[List[Button]],
+    file_name: str,
+    current_word: str,
+    lang: str,
+    type_action: Literal["send", "edit"]
+) -> None:
+    """Sending an image"""
 
     if await check_exist_img(file_name):
         if type_action == "send":
@@ -223,15 +228,18 @@ async def send_img(
     return
 
 
-async def get_translate_word(word: str, from_lang: str):
-    """"""
+async def get_translate_word(word: str, from_lang: str) -> str:
+    """Translation of a word from a dictionary"""
+
     if from_lang == "en":
         return TRANSLATES[word]
     else:
         raise ValueError(f"It is impossible to translate into this language")
 
 
-async def get_code_fill_form(user_id):
+async def get_code_fill_form(user_id: int) -> int:
+    """Returns a status code depending on the availability of data"""
+
     user_topics = await get_user_topics_db(user_id)
     user_level = await get_user_level_db(user_id)
     user_words = await _get_user_words(user_id)

@@ -11,8 +11,11 @@ async def get_my_cards(event):
     code = await get_code_fill_form(user_id)
 
     if code < 0:
-        await event.client.send_message(event.chat_id, "Еще не карточек ☺️\n\nНажимай на /start, чтобы добавить их",
-                                        buttons=Button.clear())
+        await event.client.send_message(
+            event.chat_id,
+            "Еще не карточек ☺️\n\nНажимай на /start, чтобы добавить их",
+            buttons=Button.clear()
+        )
         await update_data_events_db(user_id, "my_cards", {"step": -1, "error": "without cards"})
     else:
         if not await is_expected_steps(user_id, [3011, 3010, 2011, 2010, 61, 62]):

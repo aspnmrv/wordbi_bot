@@ -1,4 +1,5 @@
 from telethon import events, Button
+
 from tools import get_keyboard
 from db_tools import (
     _get_current_user_step, _update_current_user_step, _get_user_self_words,
@@ -21,10 +22,7 @@ from db import (
 from globals import LIMIT_USES, LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES, LIMIT_LINK_USES, TRANSLATES
 from config.config import test_user_id
 from ellie import get_conversations, get_response, build_cards_from_text
-
-from handlers.testing_words_command import testing_words
 from tools import build_history_message, build_img_cards, get_diff_between_ts, is_expected_steps
-import ast
 from bot_instance import bot
 
 
@@ -39,7 +37,6 @@ async def start_conversation_mode(event):
         if cnt_uses < LIMIT_USES or cnt_uses is None or user_id == test_user_id:
             if await is_expected_steps(user_id, [42]):
                 await _update_current_user_step(user_id, 62)
-                keyboard = await get_keyboard(["Завершить"])
 
                 topics = await get_user_topics_db(user_id)
                 level = await get_user_level_db(user_id)

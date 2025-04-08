@@ -1,4 +1,5 @@
 from telethon import events, Button
+
 from db_tools import _get_current_user_step, _get_user_test_words, _get_user_self_words, _update_current_user_step
 from db import (
     get_user_words_db,
@@ -20,8 +21,13 @@ async def handle_testing_answer(event):
 
     if message_text.startswith("/") and await is_expected_steps(user_id, [61, 62]):
         keyboard = await get_keyboard(["Завершить"])
-        await event.client.send_message(event.chat_id, "Чтобы воспользоваться командами из меню, "
-                                                       "необходимо закончить проверку себя по кнопке Завершить 🙂", buttons=keyboard, reply_to=event.message.id)
+        await event.client.send_message(
+            event.chat_id,
+            "Чтобы воспользоваться командами из меню, "
+            "необходимо закончить проверку себя по кнопке Завершить 🙂",
+            buttons=keyboard,
+            reply_to=event.message.id
+        )
         return
 
     keyboard = await get_keyboard(["Завершить"])
@@ -32,13 +38,27 @@ async def handle_testing_answer(event):
         words_test = {en.lower(): ru.lower() for en, ru in zip(user_words[0], user_words[1])}
 
         if words_test.get(cur_test_word.lower()) == message_text.lower():
-            await event.client.send_message(event.chat_id, "Иии..верно! Так держать 🦾", reply_to=event.message.id, buttons=keyboard)
-            await update_data_events_db(user_id, "testing_success", {"step": -1, "word": message_text.lower()})
+            await event.client.send_message(
+                event.chat_id,
+                "Иии..верно! Так держать 🦾",
+                reply_to=event.message.id,
+                buttons=keyboard
+            )
+            await update_data_events_db(
+                user_id,
+                "testing_success",
+                {"step": -1, "word": message_text.lower()}
+            )
             await _update_current_user_step(user_id, 3011)
             await testing_words(event)
         else:
             buttons = [[Button.inline(text="Пропустить", data=56)]]
-            await event.client.send_message(event.chat_id, "Неверно 🙁 попробуй еще раз!", reply_to=event.message.id, buttons=buttons)
+            await event.client.send_message(
+                event.chat_id,
+                "Неверно 🙁 попробуй еще раз!",
+                reply_to=event.message.id,
+                buttons=buttons
+            )
             await update_data_events_db(user_id, "testing_failed", {"step": -1, "word": message_text.lower()})
 
     elif await is_expected_steps(user_id, [2010]):
@@ -48,11 +68,21 @@ async def handle_testing_answer(event):
         words_test = {en.lower(): ru.lower() for en, ru in zip(user_words_en, user_words_ru)}
 
         if words_test.get(cur_test_word.lower()) == message_text.lower():
-            await event.client.send_message(event.chat_id, "Иии..верно! Так держать 🦾", reply_to=event.message.id, buttons=keyboard)
+            await event.client.send_message(
+                event.chat_id,
+                "Иии..верно! Так держать 🦾",
+                reply_to=event.message.id,
+                buttons=keyboard
+            )
             await update_data_events_db(user_id, "testing_success", {"step": -1, "word": message_text.lower()})
             await _update_current_user_step(user_id, 3010)
             await testing_words(event)
         else:
             buttons = [[Button.inline(text="Пропустить", data=56)]]
-            await event.client.send_message(event.chat_id, "Неверно 🙁 попробуй еще раз!", reply_to=event.message.id, buttons=buttons)
+            await event.client.send_message(
+                event.chat_id,
+                "Неверно 🙁 попробуй еще раз!",
+                reply_to=event.message.id,
+                buttons=buttons
+            )
             await update_data_events_db(user_id, "testing_failed", {"step": -1, "word": message_text.lower()})

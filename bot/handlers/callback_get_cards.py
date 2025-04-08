@@ -1,4 +1,5 @@
 from telethon import events, Button
+
 from db_tools import _get_current_user_step, _update_current_user_step, _get_user_self_words
 from db import get_user_words_db
 from tools import get_keyboard
@@ -24,7 +25,6 @@ async def handle_get_cards_callback(event):
         user_words = await get_user_words_db(user_id)
 
         if user_words:
-            user_words = user_words[0]
             await _update_current_user_step(user_id, 901)
             await get_start_cards(event)
         else:
