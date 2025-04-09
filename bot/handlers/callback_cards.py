@@ -6,7 +6,11 @@ from db_tools import (
     _get_user_states, _update_current_user_step
 )
 from db import (
-    get_user_words_db, update_data_events_db, get_last_message_ellie_db, get_num_translates_db
+    get_user_words_db,
+    update_data_events_db,
+    get_last_message_ellie_db,
+    get_num_translates_db,
+    update_user_stat_words_db
 )
 from bot_instance import bot
 
@@ -82,6 +86,7 @@ async def handle_card_callback(event):
                    "а также можешь проверить свои знания по кнопке Проверить себя 🧠\n"
             await event.client.send_message(event.chat_id, text, buttons=keyboard)
             await update_data_events_db(user_id, "complete_card", {"step": -1})
+            await update_user_stat_words_db(user_id, current_word)
         else:
             current_word = new_current_word
             buttons = [
@@ -102,6 +107,7 @@ async def handle_card_callback(event):
 
             await _update_user_words(user_id, "sport", current_word, "en")
             await update_data_events_db(user_id, "forward_card", {"step": step})
+            await update_user_stat_words_db(user_id, current_word)
 
     async def process_backward():
         if await is_expected_steps(user_id, [50]):

@@ -7,7 +7,8 @@ from db import (
     get_stat_use_link_db,
     get_user_level_db,
     update_user_words_db,
-    update_data_events_db
+    update_data_events_db,
+    update_user_stat_category_words_db
 )
 from globals import LIMIT_LINK_USES
 from config.config import test_user_id
@@ -17,20 +18,16 @@ from bot_instance import bot
 
 @bot.on(events.NewMessage())
 async def handle_custom_topic_input(event):
-    print("tututut")
     user_id = event.message.peer_id.user_id
     message_text = event.message.message
 
     if not await is_expected_steps(user_id, [52]):
-        print("if not await is_expected_steps(user_id, [52]):")
         return
 
     if message_text in ("Quiz me 📝", "Поболтать 💌", "Завершить", "Проверить себя 🧠", "Создать свой набор слов 🧬"):
-        print("2")
         return
 
     if message_text.startswith("/") and await is_expected_steps(user_id, [61, 62]):
-        print("62 62")
         keyboard = await get_keyboard(["Завершить"])
         await event.client.send_message(
             event.chat_id,
@@ -48,7 +45,12 @@ async def handle_custom_topic_input(event):
         await update_data_events_db(user_id, "cards_from_link_error", {"step": -1, "error": "limit"})
         return
 
-    await event.client.send_message(event.chat_id, "Формирую список слов..", reply_to=event.message.id, buttons=Button.clear())
+    await event.client.send_message(
+        event.chat_id,
+        "Формирую список слов..",
+        reply_to=event.message.id,
+        buttons=Button.clear()
+    )
     try:
         topics = message_text
         level = await get_user_level_db(user_id)
@@ -93,6 +95,9 @@ async def handle_custom_topic_input(event):
                 )
                 await update_data_events_db(user_id, "cards_from_link_success", {"step": -1})
                 await _update_current_user_step(user_id, 101)
+
+                list_of_words = [word for word in fixed_card_words.keys()]
+                await update_user_stat_category_words_db(user_id, list_of_words, message_text)
     except Exception:
         keyboard = await get_keyboard(["Завершить"])
         await event.client.send_message(

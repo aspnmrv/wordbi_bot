@@ -11,7 +11,8 @@ from db import (
     get_user_topics_db,
     get_user_level_db,
     get_user_words_db,
-    update_data_events_db
+    update_data_events_db,
+    update_user_stat_words_db
 )
 from bot_instance import bot
 
@@ -35,7 +36,7 @@ async def get_start_cards(event):
             await _update_current_user_step(user_id, 50)
             current_word = words_list[0].lower()
         else:
-            words_list = await build_list_of_words(topics, user_level)
+            words_list = await build_list_of_words(topics, user_level, user_id)
             await _update_user_self_words(user_id, words_list)
             current_word = words_list[0].lower()
             await _update_current_user_step(user_id, 51)
@@ -67,3 +68,4 @@ async def get_start_cards(event):
 
         await _update_user_words(user_id, "sport", current_word, "en")
         await update_data_events_db(user_id, "cards_interests", {"step": step})
+        await update_user_stat_words_db(user_id, current_word)

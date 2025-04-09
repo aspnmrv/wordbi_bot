@@ -6,7 +6,7 @@ import os
 from config import config
 
 from openai import AsyncOpenAI
-from db import update_error_logs_db
+from db import update_error_logs_db, update_user_stat_category_words_db
 from typing import List, Dict, Optional
 from globals import MODEL, TEMPERATURE, MAX_TOKENS
 

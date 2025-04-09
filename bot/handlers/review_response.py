@@ -23,4 +23,6 @@ async def handle_review_message(event):
 
     await update_reviews_db(user_id, message_text)
     await update_data_events_db(user_id, "success_review", {"step": -1})
-    await event.client.send_message(event.chat_id, "Спасибо! 💜")
+    await event.client.send_message(event.chat_id, "Спасибо! 💜\n\nКстати, можешь"
+                                                   "смотреть статистику своего прогресса по команде /my_stat"
+                                                   " из бокового меню 💫")

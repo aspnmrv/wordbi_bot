@@ -4,9 +4,13 @@ import os, fnmatch
 import requests
 import random
 import itertools
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from pathlib import Path
 from datetime import datetime
+import numpy as np
+from scipy.interpolate import interp1d
 from telethon.tl.custom import Button
 from telethon import TelegramClient, events, sync, functions
 from telethon.tl.types import InputPeerChannel
@@ -15,9 +19,11 @@ from PIL import Image, ImageDraw, ImageFont, ImageColor
 from telethon.events import NewMessage
 from telethon.tl.custom import Button
 from typing import List, Literal, Tuple, Dict, Optional, Any
+from collections import defaultdict
+from tempfile import NamedTemporaryFile
 
 from db_tools import _update_user_states, _get_current_user_step, _get_user_words
-from db import get_user_topics_db, get_user_level_db
+from db import get_user_topics_db, get_user_level_db, update_user_stat_category_words_db
 from globals import TOPICS, WORDS, TRANSLATES
 from paths import PATH_IMAGES, PATH_FONT
 
@@ -154,10 +160,11 @@ async def get_diff_between_ts(last_ts: Optional[str]) -> float:
         return 1000
 
 
-async def build_list_of_words(user_topics: List[str], user_level: str) -> List[str]:
+async def build_list_of_words(user_topics: List[str], user_level: str, user_id: int = None) -> List[str]:
     """Building a word list for the user depending on the level"""
 
     total_words = list()
+    word_to_category = dict()
 
     if "Beginner" in user_level:
         level_key = "a"
@@ -168,9 +175,23 @@ async def build_list_of_words(user_topics: List[str], user_level: str) -> List[s
 
     for topic, values in WORDS.items():
         if topic in user_topics:
-            total_words.append(values[level_key])
+            words = values[level_key]
+            total_words.append(words)
+            for word in words:
+                word_to_category[word] = topic
 
-    return random.sample(list(itertools.chain(*total_words)), 10)
+    result_words = random.sample(list(itertools.chain(*total_words)), 10)
+
+    category_to_words = defaultdict(list)
+    for word in result_words:
+        category = word_to_category.get(word)
+        if category:
+            category_to_words[category].append(word)
+
+    for cat, words in category_to_words.items():
+        await update_user_stat_category_words_db(user_id, words, cat)
+
+    return result_words
 
 
 async def build_history_message(data: List[Tuple[str, str, str]]) -> List[Dict[str, str]]:
@@ -252,3 +273,108 @@ async def get_code_fill_form(user_id: int) -> int:
     elif not user_words:
         return -4
     return 0
+
+
+async def send_user_file_stat(event, file, text):
+    """"""
+    if file:
+        await event.client.send_file(
+            event.chat_id,
+            file.name,
+            caption=text,
+            silent=True
+        )
+
+    return
+
+
+async def draw_words_line_chart(data):
+    """"""
+    if len(data) <= 1:
+        return
+
+    dates_raw = [d[0] for d in data]
+    counts = [d[1] for d in data]
+    x = np.arange(len(dates_raw))
+
+    if len(x) >= 4:
+        x_smooth = np.linspace(x.min(), x.max(), 300)
+        f = interp1d(x, counts, kind="cubic")
+        y_smooth = f(x_smooth)
+        smooth_x = x_smooth
+        smooth_y = y_smooth
+    else:
+        smooth_x = x
+        smooth_y = counts
+
+    date_labels = [d.strftime("%b %d") for d in dates_raw]
+
+    sns.set_theme(style="white")
+    fig, ax = plt.subplots(figsize=(10, 5), dpi=180)
+    ax.plot(smooth_x, smooth_y, color="#b497bd", linewidth=2)
+    ax.scatter(x, counts, color="#b497bd", s=60, zorder=5)
+
+    ax.set_facecolor("white")
+    fig.patch.set_facecolor("white")
+    for spine in ["top", "right", "bottom"]:
+        ax.spines[spine].set_visible(False)
+
+    ax.spines["left"].set_linewidth(0.8)
+    ax.spines["left"].set_color("#aaa")
+    ax.grid(False)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(date_labels, rotation=45, fontsize=10)
+    ax.set_ylabel("Words", fontsize=11)
+    ax.tick_params(axis="x", bottom=False, labelbottom=True)
+    ax.tick_params(axis="y", left=True, labelleft=True)
+
+    plt.tight_layout()
+    file = NamedTemporaryFile(delete=False, suffix=".png")
+    plt.savefig(file.name)
+    plt.clf()
+    plt.close()
+
+    return file
+
+
+async def draw_words_category_chart(data):
+    """"""
+    if len(data) <= 1:
+        return
+
+    categories = [row[0].lower() for row in data if row[0]]
+    words = [row[1] for row in data if row[0]]
+    learned_words = [row[2] for row in data if row[0]]
+    shares = [row[3] for row in data if row[0]]
+
+    sns.set_theme(style="white")
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=180)
+
+    bar_width = 0.6
+    x = range(len(categories))
+
+    for i, (cat, total, learned, share) in enumerate(zip(categories, words, learned_words, shares)):
+        ax.bar(i, total, width=bar_width, color="#d8cbe6", edgecolor="none")
+        ax.bar(i, total * share / 100, width=bar_width, color="#b497bd", edgecolor="none")
+        ax.text(i, total + 0.05, f"{total}", ha="center", va="bottom", fontsize=12, fontweight="bold")
+        ax.text(i, (total * share / 100) * 0.65, f"{int(share)}%",
+                ha="center", va="center", fontsize=10, color="white", fontweight="medium")
+
+    ax.set_facecolor("white")
+    fig.patch.set_facecolor("white")
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.tick_params(left=False, bottom=False, labelleft=False)
+
+    ax.grid(False)
+    ax.set_xticks(x)
+    ax.set_xticklabels(categories, fontsize=12)
+
+    plt.tight_layout()
+    file = NamedTemporaryFile(delete=False, suffix=".png")
+    plt.savefig(file.name)
+    plt.clf()
+    plt.close()
+
+    return file

@@ -583,3 +583,151 @@ async def get_num_translates_db(user_id):
     GLOBAL_POOL.putconn(conn)
 
     return data[0][0] if data else None
+
+
+async def update_user_stat_words_db(user_id, word) -> None:
+    """"""
+    created_at = datetime.now()
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    query = f"""
+        INSERT INTO public.user_stat_new_words (user_id, word, created_at)
+        VALUES ({user_id}, '{word}', '{created_at}')
+        ON CONFLICT (user_id, word) DO NOTHING;
+    """
+    cur.execute(query)
+    conn.commit()
+    GLOBAL_POOL.putconn(conn)
+    return None
+
+
+async def update_user_stat_learned_words_db(user_id, word) -> None:
+    """"""
+    created_at = datetime.now()
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    query = f"""
+        INSERT INTO public.user_stat_learned_words (user_id, word, created_at)
+        VALUES ({user_id}, '{word}', '{created_at}')
+        ON CONFLICT (user_id, word) DO NOTHING;
+    """
+    cur.execute(query)
+    conn.commit()
+    GLOBAL_POOL.putconn(conn)
+    return None
+
+
+async def update_user_stat_category_words_db(user_id, words, category) -> None:
+    """"""
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    created_at = datetime.now()
+
+    for word in words:
+        query = f"""
+                INSERT INTO public.user_stat_words_category (user_id, created_at, category, word, updated_at)
+                VALUES ({user_id}, '{created_at}', '{category}', '{word}', '{created_at}')
+                ON CONFLICT (user_id, word)
+                DO UPDATE SET category = EXCLUDED.category, updated_at = EXCLUDED.updated_at;
+            """
+        cur.execute(query)
+
+    conn.commit()
+    GLOBAL_POOL.putconn(conn)
+
+    return None
+
+
+async def get_user_stat_new_words_db(user_id):
+    """"""
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    query = f"""
+        select
+            date_trunc('day', created_at)::date as dt,
+            count(*) as words
+        from public.user_stat_new_words
+        where user_id = {user_id}
+        group by dt
+        order by dt
+    """
+    cur.execute(query)
+    data = cur.fetchall()
+    GLOBAL_POOL.putconn(conn)
+    return data if data else []
+
+
+async def get_user_stat_learned_words_db(user_id):
+    """"""
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    query = f"""
+        select
+            date_trunc('day', created_at)::date as dt,
+            count(*) as words
+        from public.user_stat_learned_words
+        where user_id = {user_id}
+        group by dt
+        order by dt
+    """
+    cur.execute(query)
+    data = cur.fetchall()
+    GLOBAL_POOL.putconn(conn)
+    return data if data else []
+
+
+async def get_user_stat_total_db(user_id):
+    """"""
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    query = f"""
+        with new_words_cte as (
+            select
+                user_stat_new_words.user_id,
+                user_stat_new_words.word,
+                user_stat_words_category.category
+            from public.user_stat_new_words
+            left join public.user_stat_words_category
+                on user_stat_new_words.user_id = user_stat_words_category.user_id
+                and lower(user_stat_new_words.word) = lower(user_stat_words_category.word)
+            where user_stat_new_words.user_id = {user_id}
+        ),
+        
+        learned_words_cte as (
+            select
+                user_stat_learned_words.user_id,
+                user_stat_learned_words.word,
+                user_stat_words_category.category
+            from public.user_stat_learned_words
+            left join public.user_stat_words_category
+                on user_stat_learned_words.user_id = user_stat_words_category.user_id
+                and lower(user_stat_learned_words.word) = lower(user_stat_words_category.word)
+            where user_stat_learned_words.user_id = {user_id}
+        ),
+        
+        result_cte as (
+            select
+                new_words_cte.category,
+                count(new_words_cte.word) as words,
+                count(case when learned_words_cte.word is not null then 
+                        new_words_cte.word else null end) as learned_words
+            from new_words_cte
+            left join learned_words_cte on learned_words_cte.user_id = 
+                new_words_cte.user_id
+                and lower(learned_words_cte.word) = lower(new_words_cte.word)
+            group by new_words_cte.category
+        )
+        
+        select
+            category,
+            words,
+            learned_words,
+            learned_words::float / words::float * 100. as share_leaned_words
+        from result_cte
+        order by learned_words desc
+        limit 10
+    """
+    cur.execute(query)
+    data = cur.fetchall()
+    GLOBAL_POOL.putconn(conn)
+    return data if data else []
