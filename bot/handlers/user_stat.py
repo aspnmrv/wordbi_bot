@@ -12,7 +12,7 @@ async def get_my_stat(event):
     step = await _get_current_user_step(user_id)
 
     # if await is_expected_steps(user_id, [7]):
-    await _update_current_user_step(user_id, 888)
+    # await _update_current_user_step(user_id, 888)
     await update_data_events_db(user_id, "get_stat", {"step": -1})
 
     cnt_new_words = await get_user_stat_new_words_db(user_id)
@@ -31,8 +31,8 @@ async def get_my_stat(event):
         learned_cards = [d[1] for d in cnt_learned_words]
 
         text = f"Что по прогрессу? 💜\n\n\n" \
-               f"У тебя {viewed_cards[0]} просмотренных карточки\n\n" \
-               f"🦾 {learned_cards[0]} успешно изученных слов\n\n" \
+               f"У тебя {sum(viewed_cards)} просмотренных карточки\n\n" \
+               f"🦾 {sum(learned_cards)} успешно изученных слов\n\n" \
                f"📊 Любимая категория: {categories[0]}\n\n"
         await event.client.send_message(
             event.chat_id,
