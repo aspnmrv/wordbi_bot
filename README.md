@@ -84,7 +84,8 @@ Postgres Database structure:
 Tables:
 
 - ellie_messages
-  ```
+
+```
 CREATE TABLE ellie_messages (
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     user_id BIGINT NOT NULL,
@@ -94,10 +95,11 @@ CREATE TABLE ellie_messages (
     text TEXT
 );
 
-  ```
+```
 
 - error_logs
-  ```
+
+```
 CREATE TABLE error_logs (
     id SERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -108,7 +110,8 @@ CREATE TABLE error_logs (
   ```
 
 - events
-  ```
+
+```
 CREATE TABLE events (
     id SERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -120,7 +123,8 @@ CREATE TABLE events (
   ```
 
 - reviews
-  ```
+
+ ```
 CREATE TABLE reviews (
     id SERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -131,7 +135,8 @@ CREATE TABLE reviews (
   ```
 
 - user_level
-  ```
+
+```
 CREATE TABLE user_level (
     user_id BIGINT NOT NULL PRIMARY KEY,
     created_at TIMESTAMP WITHOUT TIME ZONE,
@@ -142,7 +147,8 @@ CREATE TABLE user_level (
   ```
 
 - user_self_words
-  ```
+
+```
 CREATE TABLE user_self_words (
     user_id BIGINT NOT NULL PRIMARY KEY,
     words TEXT
@@ -151,7 +157,8 @@ CREATE TABLE user_self_words (
   ```
 
 - user_stat_learned_words
-  ```
+
+```
 CREATE TABLE user_stat_learned_words (
     user_id BIGINT,
     word VARCHAR,
@@ -161,7 +168,8 @@ CREATE TABLE user_stat_learned_words (
   ```
 
 - user_stat_new_words
-  ```
+
+```
 CREATE TABLE user_stat_new_words (
     user_id BIGINT,
     word VARCHAR,
@@ -171,7 +179,8 @@ CREATE TABLE user_stat_new_words (
   ```
 
 - user_stat_words_category
-  ```
+
+```
 CREATE TABLE user_stat_words_category (
     user_id BIGINT,
     created_at TIMESTAMP WITHOUT TIME ZONE,
@@ -183,7 +192,8 @@ CREATE TABLE user_stat_words_category (
   ```
 
 - user_topics
-  ```
+
+```
 CREATE TABLE user_topics (
     user_id BIGINT NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE,
@@ -194,7 +204,8 @@ CREATE TABLE user_topics (
   ```
 
 - user_words
-  ```
+
+```
 CREATE TABLE user_words (
     user_id BIGINT,
     created_at TIMESTAMP WITHOUT TIME ZONE,
@@ -205,7 +216,8 @@ CREATE TABLE user_words (
   ```
 
 - users
-  ```
+
+```
 CREATE TABLE users (
     id BIGINT NOT NULL PRIMARY KEY,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
