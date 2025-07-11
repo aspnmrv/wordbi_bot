@@ -12,6 +12,6 @@ async def choose_other_mode(event):
 
     if await is_expected_steps(user_id, [7]):
         await _update_current_user_step(user_id, 9)
-        keyboard = await get_keyboard(["Карточки слов 🧩", "Чат с Ellie 💬"])
+        keyboard = await get_keyboard(["Карточки слов 🧩", "Чат с Ellie ✨"])
         await event.client.send_message(event.chat_id, "Попробуем что-то другое? 😏", buttons=keyboard)
         await update_data_events_db(user_id, "other_mode", {"step": step})

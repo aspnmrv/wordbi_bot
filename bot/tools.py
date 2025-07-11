@@ -21,6 +21,7 @@ from telethon.tl.custom import Button
 from typing import List, Literal, Tuple, Dict, Optional, Any
 from collections import defaultdict
 from tempfile import NamedTemporaryFile
+from docx import Document
 
 from db_tools import _update_user_states, _get_current_user_step, _get_user_words
 from db import get_user_topics_db, get_user_level_db, update_user_stat_category_words_db
@@ -378,3 +379,12 @@ async def draw_words_category_chart(data):
     plt.close()
 
     return file
+
+
+def extract_text_from_docx(path):
+    """"""
+    doc = Document(path)
+    full_text = []
+    for para in doc.paragraphs:
+        full_text.append(para.text)
+    return '\n'.join(full_text)

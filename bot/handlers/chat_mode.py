@@ -5,7 +5,7 @@ from db import update_data_events_db
 from bot_instance import bot
 
 
-@bot.on(events.NewMessage(pattern="Чат с Ellie 💬"))
+@bot.on(events.NewMessage(pattern="Чат с Ellie ✨"))
 async def start_chat(event):
     user_id = event.message.peer_id.user_id
     step = await _get_current_user_step(user_id)

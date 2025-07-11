@@ -24,7 +24,7 @@ async def get_my_stat(event):
     learned_words = [row[2] for row in total_words_stat if row[0]]
     shares = [row[3] for row in total_words_stat if row[0]]
 
-    # keyboard = await get_keyboard(["Карточки слов 🧩", "Чат с Ellie 💬"])
+    # keyboard = await get_keyboard(["Карточки слов 🧩", "Чат с Ellie ✨"])
     if cnt_new_words:
         dates = [d[0] for d in cnt_new_words]
         viewed_cards = [d[1] for d in cnt_new_words]
