@@ -422,3 +422,9 @@ async def is_simple_word_list(text):
         if ':' in line:
             return False
     return True
+
+
+async def cut_word_pairs(content, limit=35):
+    """"""
+    lines = [line.strip() for line in content.splitlines() if line.strip()]
+    return "\n".join(lines[:limit])

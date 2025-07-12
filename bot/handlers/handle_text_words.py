@@ -43,7 +43,14 @@ async def handle_custom_topic_input(event):
 
     level = await get_user_level_db(user_id)
     try:
+        is_cut = False
         if await is_valid_word_list(message_text):
+            lines = message_text.splitlines()
+            if len(lines) > 35:
+                lines = lines[:35]
+                message_text = "\n".join(lines)
+                is_cut = True
+
             card_words = await parse_word_list(message_text)
 
             if not card_words:
@@ -67,8 +74,14 @@ async def handle_custom_topic_input(event):
                 return
 
             await send_error_message(user_id, event, card_words)
-            await finalize_cards_and_send_next_steps(event, user_id, card_words, message_text, next_step=101)
+            await finalize_cards_and_send_next_steps(event, user_id, card_words, "my_words", next_step=101, is_cut=is_cut)
         elif await is_simple_word_list(message_text):
+            lines = message_text.splitlines()
+            if len(lines) > 35:
+                lines = lines[:35]
+                message_text = "\n".join(lines)
+                is_cut = True
+
             card_words = await get_cards_from_simple_list(user_id, message_text)
             if not card_words:
                 keyboard = await get_keyboard(["Завершить"])
@@ -93,7 +106,7 @@ async def handle_custom_topic_input(event):
                 return
 
             await send_error_message(user_id, event, card_words)
-            await finalize_cards_and_send_next_steps(event, user_id, card_words, message_text, next_step=101)
+            await finalize_cards_and_send_next_steps(event, user_id, card_words, "my_words", next_step=101, is_cut=is_cut)
 
     except Exception as e:
         keyboard = await get_keyboard(["Завершить"])

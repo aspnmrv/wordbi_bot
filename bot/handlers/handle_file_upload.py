@@ -4,7 +4,7 @@ from bot.handlers.common import (
     finalize_cards_and_send_next_steps,
     send_error_message
 )
-from bot.tools import get_keyboard, is_expected_steps, extract_text_from_docx
+from bot.tools import get_keyboard, is_expected_steps, extract_text_from_docx, cut_word_pairs
 from bot.db import update_data_events_db
 from bot.ellie import parse_file
 import ast
@@ -33,7 +33,7 @@ async def handle_docx_upload(event):
 
         try:
             path = await event.message.download_media()
-            content = extract_text_from_docx(path)
+            content = await extract_text_from_docx(path)
             os.remove(path)
         except Exception as e:
             keyboard = await get_keyboard(["Завершить"])
@@ -45,15 +45,11 @@ async def handle_docx_upload(event):
             await update_data_events_db(user_id, "cards_from_file_error", {"step": -1, "error": str(e)})
             return
 
-        if len(content.split()) > 500:
-            keyboard = await get_keyboard(["Завершить"])
-            await event.client.send_message(
-                event.chat_id,
-                "Слишком много слов 😔. Попробуй загрузить файл с количеством слов не более 30",
-                buttons=keyboard
-            )
-            await update_data_events_db(user_id, "cards_from_file_error", {"step": -1, "error": "too_many_words"})
-            return
+        is_cut = False
+
+        if len(content.split(" ")) > 300:
+            content = await cut_word_pairs(content)
+            is_cut = True
 
         if len(content) < 5:
             keyboard = await get_keyboard(["Завершить"])
@@ -75,11 +71,11 @@ async def handle_docx_upload(event):
                     "Упс..произошла какая-то ошибка. Меня уже чинят, попробуй попозже 💜",
                     buttons=keyboard
                 )
-                await update_data_events_db(user_id, "cards_from_file_error_api", {"step": -1, "error": str(e)})
+                await update_data_events_db(user_id, "cards_from_file_error", {"step": -1, "error": "not_dict"})
                 return
 
             await send_error_message(user_id, event, card_words)
-            await finalize_cards_and_send_next_steps(event, user_id, card_words, "my_words", next_step=391)
+            await finalize_cards_and_send_next_steps(event, user_id, card_words, "my_words", next_step=391, is_cut=is_cut)
 
         except Exception as e:
             keyboard = await get_keyboard(["Завершить"])
