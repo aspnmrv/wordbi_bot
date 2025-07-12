@@ -1,11 +1,11 @@
 from telethon import events
 from telethon.tl.custom import Button
-from tools import get_keyboard, send_img, get_translate_word, match_topics_name, is_expected_steps
-from db_tools import (
+from bot.tools import get_keyboard, send_img, get_translate_word, match_topics_name, is_expected_steps
+from bot.db_tools import (
     _get_current_user_step, _get_user_words, _get_user_self_words, _update_user_words,
     _get_user_states, _update_current_user_step
 )
-from db import (
+from bot.db import (
     get_user_words_db,
     update_data_events_db,
     get_last_message_ellie_db,

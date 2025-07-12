@@ -1,13 +1,13 @@
 from telethon import events, Button
 
-from tools import get_keyboard, send_img, build_list_of_words, is_expected_steps
-from db_tools import (
+from bot.tools import get_keyboard, send_img, build_list_of_words, is_expected_steps
+from bot.db_tools import (
     _get_current_user_step,
     _update_current_user_step,
     _update_user_words,
     _update_user_self_words
 )
-from db import (
+from bot.db import (
     get_user_topics_db,
     get_user_level_db,
     get_user_words_db,

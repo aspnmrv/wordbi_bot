@@ -1,7 +1,7 @@
 from telethon import events, Button
 
-from db_tools import _get_current_user_step, _get_user_self_words
-from db import (
+from bot.db_tools import _get_current_user_step, _get_user_self_words
+from bot.db import (
     get_stat_use_message_db,
     get_event_from_db,
     update_data_events_db,
@@ -10,9 +10,9 @@ from db import (
     get_history_chat_ellie_db,
     update_messages_db
 )
-from ellie import get_conversations, get_response
-from globals import LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES
-from tools import get_keyboard, build_history_message, get_diff_between_ts, is_expected_steps
+from bot.ellie import get_conversations, get_response
+from bot.globals import LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES
+from bot.tools import get_keyboard, build_history_message, get_diff_between_ts, is_expected_steps
 from bot.bot_instance import bot
 from config.config import test_user_id
 

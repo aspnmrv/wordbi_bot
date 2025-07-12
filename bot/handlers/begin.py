@@ -1,13 +1,13 @@
 from telethon import events
 
-from globals import TOPICS
-from tools import get_keyboard, get_proposal_topics, match_topics_name, get_state_markup, is_expected_steps
-from db_tools import (
+from bot.globals import TOPICS
+from bot.tools import get_keyboard, get_proposal_topics, match_topics_name, get_state_markup, is_expected_steps
+from bot.db_tools import (
     _update_current_user_step,
     _update_user_states,
     _get_user_states
 )
-from db import update_data_events_db
+from bot.db import update_data_events_db
 from telethon.tl.custom import Button
 from bot.bot_instance import bot
 

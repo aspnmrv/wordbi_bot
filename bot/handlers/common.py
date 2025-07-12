@@ -1,9 +1,9 @@
-from tools import get_keyboard, build_img_cards
-from db_tools import (
+from bot.tools import get_keyboard, build_img_cards
+from bot.db_tools import (
     _update_user_self_words, _update_current_user_step,
     _update_user_words, _update_user_choose_topic
 )
-from db import update_user_words_db, update_data_events_db, update_user_stat_category_words_db
+from bot.db import update_user_words_db, update_data_events_db, update_user_stat_category_words_db
 
 
 async def finalize_cards_and_send_next_steps(event, user_id, card_words, topic, next_step):

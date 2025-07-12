@@ -1,8 +1,8 @@
 from telethon import events
-from tools import build_markup, update_text_from_state_markup, get_state_markup
-from db_tools import _get_user_states
-from tools import match_topics_name
-from db_tools import _get_current_user_step
+from bot.tools import build_markup, update_text_from_state_markup, get_state_markup
+from bot.db_tools import _get_user_states
+from bot.tools import match_topics_name
+from bot.db_tools import _get_current_user_step
 from bot.bot_instance import bot
 
 

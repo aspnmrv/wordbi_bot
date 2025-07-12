@@ -1,14 +1,14 @@
 from telethon import events, Button
 
-from tools import get_keyboard, check_exist_img, create_img_card, is_expected_steps
-from db_tools import (
+from bot.tools import get_keyboard, check_exist_img, create_img_card, is_expected_steps
+from bot.db_tools import (
     _get_current_user_step,
     _update_current_user_step,
     _update_user_test_words,
     _get_user_test_words,
     _get_user_self_words
 )
-from db import update_data_events_db, get_user_words_db
+from bot.db import update_data_events_db, get_user_words_db
 from paths import PATH_IMAGES, PATH_FONT
 from bot.bot_instance import bot
 

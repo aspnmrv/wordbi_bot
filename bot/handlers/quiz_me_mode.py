@@ -1,15 +1,15 @@
 from telethon import events, Button
 
-from db_tools import _get_current_user_step, _update_current_user_step, _get_user_self_words
-from db import (
+from bot.db_tools import _get_current_user_step, _update_current_user_step, _get_user_self_words
+from bot.db import (
     get_user_level_db,
     get_stat_use_mode_db,
     update_data_events_db,
     update_messages_db
 )
-from tools import get_keyboard, is_expected_steps
-from ellie import get_response
-from globals import LIMIT_USES
+from bot.tools import get_keyboard, is_expected_steps
+from bot.ellie import get_response
+from bot.globals import LIMIT_USES
 from config.config import test_user_id
 from bot.bot_instance import bot
 

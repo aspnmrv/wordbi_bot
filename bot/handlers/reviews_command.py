@@ -1,9 +1,9 @@
 from telethon import events
 
-from db_tools import _get_current_user_step, _update_current_user_step
-from db import update_data_events_db
-from tools import is_expected_steps
-from handlers.leave_feedback import leave_feedback_prompt
+from bot.db_tools import _get_current_user_step, _update_current_user_step
+from bot.db import update_data_events_db
+from bot.tools import is_expected_steps
+from bot.handlers.leave_feedback import leave_feedback_prompt
 from bot.bot_instance import bot
 
 

@@ -1,7 +1,7 @@
 from telethon import events, Button
-from db_tools import _get_current_user_step, _update_current_user_step, _get_user_self_words
-from db import update_data_events_db
-from tools import is_expected_steps, get_code_fill_form
+from bot.db_tools import _get_current_user_step, _update_current_user_step, _get_user_self_words
+from bot.db import update_data_events_db
+from bot.tools import is_expected_steps, get_code_fill_form
 from bot.bot_instance import bot
 
 

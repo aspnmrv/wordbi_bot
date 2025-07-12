@@ -1,13 +1,13 @@
 from telethon import events
-from db_tools import _get_current_user_step
-from db import (
+from bot.db_tools import _get_current_user_step
+from bot.db import (
     get_last_message_ellie_db,
     update_data_events_db,
     get_num_translates_db
 )
 
-from tools import get_keyboard, is_expected_steps
-from ellie import get_translate
+from bot.tools import get_keyboard, is_expected_steps
+from bot.ellie import get_translate
 from bot.bot_instance import bot
 
 

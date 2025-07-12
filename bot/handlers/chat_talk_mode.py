@@ -1,11 +1,11 @@
 from telethon import events, Button
 
-from tools import get_keyboard
-from db_tools import (
+from bot.tools import get_keyboard
+from bot.db_tools import (
     _get_current_user_step, _update_current_user_step, _get_user_self_words,
     _get_user_test_words, _update_user_words, _update_user_choose_topic
 )
-from db import (
+from bot.db import (
     get_event_from_db,
     get_stat_use_mode_db,
     get_stat_use_message_db,
@@ -19,10 +19,10 @@ from db import (
     get_history_chat_ellie_db,
     update_user_words_db
 )
-from globals import LIMIT_USES, LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES, LIMIT_LINK_USES, TRANSLATES
+from bot.globals import LIMIT_USES, LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES, LIMIT_LINK_USES, TRANSLATES
 from config.config import test_user_id
-from ellie import get_conversations, get_response, build_cards_from_text
-from tools import build_history_message, build_img_cards, get_diff_between_ts, is_expected_steps
+from bot.ellie import get_conversations, get_response, build_cards_from_text
+from bot.tools import build_history_message, build_img_cards, get_diff_between_ts, is_expected_steps
 from bot.bot_instance import bot
 
 

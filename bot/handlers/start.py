@@ -1,8 +1,8 @@
 from telethon import events
 
-from tools import get_keyboard
-from db_tools import _update_current_user_step, _create_db
-from db import is_user_exist_db, update_data_users_db, update_data_events_db
+from bot.tools import get_keyboard
+from bot.db_tools import _update_current_user_step, _create_db
+from bot.db import is_user_exist_db, update_data_users_db, update_data_events_db
 from bot.bot_instance import bot
 
 

@@ -1,6 +1,6 @@
 from telethon import events, Button
 
-from db import get_user_for_notify_reviews_db, update_data_events_db
+from bot.db import get_user_for_notify_reviews_db, update_data_events_db
 from config.config import test_user_id
 from bot.bot_instance import bot
 

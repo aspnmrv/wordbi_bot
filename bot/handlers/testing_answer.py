@@ -1,15 +1,15 @@
 from telethon import events, Button
 
-from db_tools import _get_current_user_step, _get_user_test_words, _get_user_self_words, _update_current_user_step
-from db import (
+from bot.db_tools import _get_current_user_step, _get_user_test_words, _get_user_self_words, _update_current_user_step
+from bot.db import (
     get_user_words_db,
     update_data_events_db,
     update_user_stat_learned_words_db,
     update_user_stat_category_words_db
 )
-from globals import TRANSLATES
-from tools import get_keyboard, is_expected_steps
-from handlers.testing_words_command import testing_words
+from bot.globals import TRANSLATES
+from bot.tools import get_keyboard, is_expected_steps
+from bot.handlers.testing_words_command import testing_words
 from bot.bot_instance import bot
 
 

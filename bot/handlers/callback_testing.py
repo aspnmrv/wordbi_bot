@@ -1,9 +1,9 @@
 from telethon import events
 
-from db_tools import _get_current_user_step, _update_current_user_step
-from tools import is_expected_steps
-from handlers.testing_words_command import testing_words
-from db import update_data_events_db
+from bot.db_tools import _get_current_user_step, _update_current_user_step
+from bot.tools import is_expected_steps
+from bot.handlers.testing_words_command import testing_words
+from bot.db import update_data_events_db
 from bot.bot_instance import bot
 
 

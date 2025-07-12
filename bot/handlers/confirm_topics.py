@@ -1,13 +1,13 @@
 from telethon import events
 
-from tools import get_keyboard, is_expected_steps
-from db_tools import (
+from bot.tools import get_keyboard, is_expected_steps
+from bot.db_tools import (
     _get_current_user_step,
     _update_current_user_step,
     _get_user_states,
     _update_user_choose_topic
 )
-from db import update_data_topics_db, update_data_events_db
+from bot.db import update_data_topics_db, update_data_events_db
 from bot.bot_instance import bot
 
 

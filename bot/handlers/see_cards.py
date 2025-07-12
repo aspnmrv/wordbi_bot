@@ -1,8 +1,8 @@
 from telethon import events
 
-from db_tools import _update_current_user_step
-from tools import is_expected_steps
-from handlers.cards_by_interest import get_start_cards
+from bot.db_tools import _update_current_user_step
+from bot.tools import is_expected_steps
+from bot.handlers.cards_by_interest import get_start_cards
 from bot.bot_instance import bot
 
 

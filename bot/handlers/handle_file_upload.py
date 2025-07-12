@@ -1,12 +1,12 @@
 from telethon import events
 from bot.bot_instance import bot
-from handlers.common import (
+from bot.handlers.common import (
     finalize_cards_and_send_next_steps,
     send_error_message
 )
-from tools import get_keyboard, is_expected_steps, extract_text_from_docx
-from db import update_data_events_db
-from ellie import parse_file
+from bot.tools import get_keyboard, is_expected_steps, extract_text_from_docx
+from bot.db import update_data_events_db
+from bot.ellie import parse_file
 import ast
 import os
 

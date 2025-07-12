@@ -1,7 +1,7 @@
 from telethon import events
-from db import update_user_level_db, update_data_events_db
-from db_tools import _get_current_user_step, _update_current_user_step
-from tools import get_keyboard, is_expected_steps
+from bot.db import update_user_level_db, update_data_events_db
+from bot.db_tools import _get_current_user_step, _update_current_user_step
+from bot.tools import get_keyboard, is_expected_steps
 from bot.bot_instance import bot
 
 

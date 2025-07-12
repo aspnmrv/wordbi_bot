@@ -3,11 +3,11 @@ import ast
 from telethon import events
 from telethon import events, Button
 from bot.bot_instance import bot
-from handlers.common import (
+from bot.handlers.common import (
     finalize_cards_and_send_next_steps,
     send_error_message
 )
-from tools import (
+from bot.tools import (
     get_keyboard,
     build_img_cards,
     is_expected_steps,
@@ -15,11 +15,11 @@ from tools import (
     is_simple_word_list,
     parse_word_list
 )
-from db import (
+from bot.db import (
     get_user_level_db, update_user_words_db, update_data_events_db,
     update_user_stat_category_words_db
 )
-from ellie import get_cards_from_simple_list
+from bot.ellie import get_cards_from_simple_list
 
 
 @bot.on(events.NewMessage())

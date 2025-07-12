@@ -1,13 +1,13 @@
 from telethon import events
 
-from tools import is_expected_steps
-from handlers.start import start
-from handlers.begin import begin
-from handlers.confirm_topics import confirmed
-from handlers.choose_level import choose_level
-from handlers.cards_entry import cards
-from handlers.chat_mode import start_chat
-from handlers.finish_command import get_end
+from bot.tools import is_expected_steps
+from bot.handlers.start import start
+from bot.handlers.begin import begin
+from bot.handlers.confirm_topics import confirmed
+from bot.handlers.choose_level import choose_level
+from bot.handlers.cards_entry import cards
+from bot.handlers.chat_mode import start_chat
+from bot.handlers.finish_command import get_end
 from bot.bot_instance import bot
 
 
