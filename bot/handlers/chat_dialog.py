@@ -13,7 +13,7 @@ from db import (
 from ellie import get_conversations, get_response
 from globals import LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES
 from tools import get_keyboard, build_history_message, get_diff_between_ts, is_expected_steps
-from bot_instance import bot
+from bot.bot_instance import bot
 from config.config import test_user_id
 
 

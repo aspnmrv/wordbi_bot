@@ -2,7 +2,7 @@ import ast
 
 from telethon import events
 from telethon import events, Button
-from bot_instance import bot
+from bot.bot_instance import bot
 from handlers.common import (
     finalize_cards_and_send_next_steps,
     send_error_message

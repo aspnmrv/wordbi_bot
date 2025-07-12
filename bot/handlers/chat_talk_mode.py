@@ -23,7 +23,7 @@ from globals import LIMIT_USES, LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES, LIMIT_LI
 from config.config import test_user_id
 from ellie import get_conversations, get_response, build_cards_from_text
 from tools import build_history_message, build_img_cards, get_diff_between_ts, is_expected_steps
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="Поболтать 💌"))

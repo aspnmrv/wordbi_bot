@@ -8,7 +8,7 @@ from db import (
 
 from tools import get_keyboard, is_expected_steps
 from ellie import get_translate
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.CallbackQuery())

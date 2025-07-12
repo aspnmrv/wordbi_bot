@@ -8,7 +8,7 @@ from handlers.choose_level import choose_level
 from handlers.cards_entry import cards
 from handlers.chat_mode import start_chat
 from handlers.finish_command import get_end
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="Назад"))

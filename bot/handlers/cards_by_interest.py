@@ -14,7 +14,7 @@ from db import (
     update_data_events_db,
     update_user_stat_words_db
 )
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="Карточки на основе интересов 👾"))

@@ -11,7 +11,7 @@ from tools import get_keyboard, is_expected_steps
 from ellie import get_response
 from globals import LIMIT_USES
 from config.config import test_user_id
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="Quiz me 📝"))

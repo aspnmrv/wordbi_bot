@@ -1,7 +1,7 @@
 from telethon import events, Button
 from db import update_reviews_db, update_data_events_db
 from tools import is_expected_steps
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage())

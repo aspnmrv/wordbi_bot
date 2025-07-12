@@ -4,7 +4,7 @@ from db_tools import _get_current_user_step, _update_current_user_step
 from tools import is_expected_steps
 from handlers.testing_words_command import testing_words
 from db import update_data_events_db
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.CallbackQuery())

@@ -1,7 +1,7 @@
 from telethon import events, Button
 from db import get_private_db, update_data_events_db
 from config.config import test_user_id
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="/deloss"))

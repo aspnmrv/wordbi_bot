@@ -8,7 +8,7 @@ from db_tools import (
     _update_user_choose_topic
 )
 from db import update_data_topics_db, update_data_events_db
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="Подтвердить"))

@@ -3,7 +3,7 @@ from tools import build_markup, update_text_from_state_markup, get_state_markup
 from db_tools import _get_user_states
 from tools import match_topics_name
 from db_tools import _get_current_user_step
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.CallbackQuery())

@@ -10,7 +10,7 @@ from db_tools import (
 )
 from db import update_data_events_db, get_user_words_db
 from paths import PATH_IMAGES, PATH_FONT
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="Проверить себя 🧠"))

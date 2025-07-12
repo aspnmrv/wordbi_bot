@@ -3,7 +3,7 @@ from telethon import events
 from db_tools import _update_current_user_step
 from tools import is_expected_steps
 from handlers.cards_by_interest import get_start_cards
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="Увидеть карточки 💜"))

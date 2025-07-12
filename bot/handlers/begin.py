@@ -9,7 +9,7 @@ from db_tools import (
 )
 from db import update_data_events_db
 from telethon.tl.custom import Button
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="Начать 🚀"))

@@ -3,7 +3,7 @@ from telethon import events
 from db_tools import _get_current_user_step, _update_current_user_step
 from db import update_data_events_db, get_user_stat_new_words_db, get_user_stat_learned_words_db, get_user_stat_total_db
 from tools import get_keyboard, is_expected_steps, draw_words_line_chart, send_user_file_stat, draw_words_category_chart
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="/my_stat"))

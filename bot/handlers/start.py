@@ -3,7 +3,7 @@ from telethon import events
 from tools import get_keyboard
 from db_tools import _update_current_user_step, _create_db
 from db import is_user_exist_db, update_data_users_db, update_data_events_db
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage(pattern="/start"))

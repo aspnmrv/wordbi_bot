@@ -10,7 +10,7 @@ from db import (
 from globals import TRANSLATES
 from tools import get_keyboard, is_expected_steps
 from handlers.testing_words_command import testing_words
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 @bot.on(events.NewMessage())
