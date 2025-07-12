@@ -6,7 +6,7 @@ from bot_instance import bot
 from handlers.common import (
     finalize_cards_and_send_next_steps
 )
-from tools import get_keyboard, build_img_cards, is_expected_steps
+from tools import get_keyboard, build_img_cards, is_expected_steps, is_valid_word_list, is_simple_word_list
 from db import (
     get_user_level_db, update_user_words_db, update_data_events_db,
     update_user_stat_category_words_db
@@ -26,6 +26,9 @@ async def handle_custom_topic_input(event):
         return
 
     if event.message.file:
+        return
+
+    if await is_valid_word_list(message_text) or await is_simple_word_list(message_text):
         return
 
     await event.client.send_message(event.chat_id, "Формирую список слов...", buttons=Button.clear())

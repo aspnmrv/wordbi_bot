@@ -381,10 +381,44 @@ async def draw_words_category_chart(data):
     return file
 
 
-def extract_text_from_docx(path):
+async def extract_text_from_docx(path):
     """"""
     doc = Document(path)
     full_text = []
     for para in doc.paragraphs:
         full_text.append(para.text)
     return '\n'.join(full_text)
+
+
+async def is_valid_word_list(text):
+    """"""
+    lines = text.strip().split('\n')
+    for line in lines:
+        if ":" not in line:
+            return False
+        parts = line.split(":", 1)
+        if len(parts) != 2 or not parts[0].strip() or not parts[1].strip():
+            return False
+    return True
+
+
+async def parse_word_list(text):
+    """"""
+    word_dict = {}
+    lines = text.strip().split('\n')
+    for line in lines:
+        key, value = line.split(':', 1)
+        word_dict[key.strip()] = value.strip()
+    return word_dict
+
+
+async def is_simple_word_list(text):
+    """
+    """
+    lines = [line.strip() for line in text.strip().split('\n') if line.strip()]
+    if len(lines) < 2:
+        return False
+    for line in lines:
+        if ':' in line:
+            return False
+    return True

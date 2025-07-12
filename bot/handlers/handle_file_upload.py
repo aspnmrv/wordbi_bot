@@ -1,7 +1,8 @@
 from telethon import events
 from bot_instance import bot
 from handlers.common import (
-    finalize_cards_and_send_next_steps
+    finalize_cards_and_send_next_steps,
+    send_error_message
 )
 from tools import get_keyboard, is_expected_steps, extract_text_from_docx
 from db import update_data_events_db
@@ -48,7 +49,7 @@ async def handle_docx_upload(event):
             keyboard = await get_keyboard(["Завершить"])
             await event.client.send_message(
                 event.chat_id,
-                "Слишком много слов. Попробуй загрузить файл с количеством слов не более 20",
+                "Слишком много слов 😔. Попробуй загрузить файл с количеством слов не более 30",
                 buttons=keyboard
             )
             await update_data_events_db(user_id, "cards_from_file_error", {"step": -1, "error": "too_many_words"})
@@ -77,6 +78,7 @@ async def handle_docx_upload(event):
                 await update_data_events_db(user_id, "cards_from_file_error_api", {"step": -1, "error": str(e)})
                 return
 
+            await send_error_message(user_id, event, card_words)
             await finalize_cards_and_send_next_steps(event, user_id, card_words, "my_words", next_step=391)
 
         except Exception as e:

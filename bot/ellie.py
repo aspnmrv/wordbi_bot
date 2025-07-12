@@ -253,3 +253,54 @@ async def parse_file(user_id: int, text: str) -> Optional[str]:
     except Exception as e:
        await update_error_logs_db(user_id, e)
        return None
+
+
+async def get_cards_from_simple_list(user_id: int, text: str) -> Optional[str]:
+    """"""
+    try:
+        content = f"""Your task is to find the correct English translation for the Russian words from the 
+        list and return the result in dictionary format:
+        f'{{word: the same word translated into Russian}}. For example:' \
+        f'{{\
+            "Sequential": "Последовательный",\
+            "Tests": "Тесты",\
+            "Experiments": "Эксперименты",\
+            "Literature": "Литература",\
+            "Determine": "Определить",\
+            "Suitable": "Подходящий",\
+            "Optimal": "Оптимальный",\
+            "Advice": "Совет",\
+            "Blooming": "Развивающийся",\
+            "Choice": "Выбор"\
+        }}\n\n'
+
+        Origin list of words: {text}\n\n
+
+        If the words contain inappropriate content, then return a dictionary with key -1 and value -1: 
+        for example: {{-1: -1}}
+
+        If there are too many words (more than three hundred), then return a dictionary with key -2 and value -2: 
+        for example: {{-2: -2}}
+
+        If the language of the main words is different from English or Russian, return a dictionary with key -3 and value -3:
+        for example: {{-3: -3}}
+
+        It is very important to select the correct translation and return the result in the required format..
+    """
+
+        messages = list()
+        messages.append(
+            {"role": "system", "content": content}
+        )
+
+        chat_completion = await client.chat.completions.create(
+            messages=messages,
+            model=MODEL,
+            temperature=0.3,
+            max_tokens=MAX_TOKENS + 1000
+        )
+
+        return chat_completion.choices[0].message.content
+    except Exception as e:
+        await update_error_logs_db(user_id, e)
+        return None

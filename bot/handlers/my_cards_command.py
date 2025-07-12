@@ -29,8 +29,8 @@ async def get_my_cards(event):
             ]]
             await event.client.send_message(event.chat_id, text, buttons=buttons)
 
-            desc = "▪️ По интересам - карточки, созданные на основе твоих интересов\n"
-            desc += "▪️ Из ссылки - карточки, созданные из ссылки"
+            desc = "▪️ По интересам – карточки, созданные на основе твоих интересов\n"
+            desc += "▪️ Мои карточки – карточки, созданные из своего набора слов или из файла"
             await event.client.send_message(event.chat_id, desc, buttons=Button.clear())
 
             await update_data_events_db(user_id, "my_cards", {"step": step})
