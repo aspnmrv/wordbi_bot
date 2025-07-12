@@ -81,10 +81,8 @@ async def handle_custom_topic_input(event):
                 return
 
             card_words = ast.literal_eval(card_words)
-            print("card_words", card_words)
 
             if not isinstance(card_words, dict):
-                print("if not isinstance(card_words, dict):")
                 keyboard = await get_keyboard(["Завершить"])
                 await event.client.send_message(
                     event.chat_id,

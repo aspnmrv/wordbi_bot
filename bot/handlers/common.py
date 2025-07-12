@@ -9,9 +9,7 @@ from db import update_user_words_db, update_data_events_db, update_user_stat_cat
 async def finalize_cards_and_send_next_steps(event, user_id, card_words, topic, next_step):
     await _update_user_self_words(user_id, card_words)
     fixed = {w.replace('/', ''): t.replace('/', '') for w, t in card_words.items()}
-    print("fixed", fixed)
     await build_img_cards(fixed)
-    print("build_img_cards success")
     await _update_user_words(user_id, "self", "", "en")
     await _update_user_choose_topic(user_id, "self")
     await update_user_words_db(user_id, fixed, topic)
