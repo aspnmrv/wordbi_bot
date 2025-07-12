@@ -26,7 +26,7 @@ from docx import Document
 from bot.db_tools import _update_user_states, _get_current_user_step, _get_user_words
 from bot.db import get_user_topics_db, get_user_level_db, update_user_stat_category_words_db
 from bot.globals import TOPICS, WORDS, TRANSLATES
-from bot.paths import PATH_IMAGES, PATH_FONT
+from paths import PATH_IMAGES, PATH_FONT
 
 
 async def update_text_from_state_markup(
