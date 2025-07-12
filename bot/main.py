@@ -12,7 +12,7 @@ from telethon.tl.types import InputPeerChannel
 from telethon.tl.types import SendMessageTypingAction
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 
-from bot_instance import bot
+from bot.bot_instance import bot
 
 
 config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config')
@@ -31,10 +31,12 @@ history_dict = dict()
 
 
 def load_handlers(directory: Path):
+    package = directory.parent.name
+    subpackage = directory.name
     for filename in os.listdir(directory):
         if filename.endswith(".py") and not filename.startswith("__"):
             module_name = filename[:-3]
-            import_path = f"{directory.name}.{module_name}"
+            import_path = f"{package}.{subpackage}.{module_name}"
             importlib.import_module(import_path)
 
 
