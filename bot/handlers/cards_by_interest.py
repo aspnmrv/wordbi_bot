@@ -1,6 +1,7 @@
 from telethon import events, Button
 
-from bot.tools import get_keyboard, send_img, build_list_of_words, is_expected_steps, get_code_fill_form, match_topics_name
+from bot.tools import get_keyboard, send_img, build_list_of_words, \
+    is_expected_steps, get_code_fill_form, match_topics_name, get_image_filename, normalize_filename
 from bot.db_tools import (
     _get_current_user_step,
     _update_current_user_step,
