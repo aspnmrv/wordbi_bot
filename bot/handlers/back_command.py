@@ -47,3 +47,5 @@ async def get_back(event):
         await get_my_cards(event)
     elif await is_expected_steps(user_id, [52]):
         await cards(event)
+    elif await is_expected_steps(user_id, [904]):
+        await get_my_cards(event)
