@@ -230,11 +230,11 @@ async def handle_flip_card(event, user_id):
         [Button.inline("Пропустить", data="56")]
     ]
 
+    print(f"=== flip_card ===")
     print(f"flip_file = {flip_file}")
     print(f"hash = {file_hash(flip_file)}")
+    print(f"text on card = {flip_text}")
     print(f"caption = {message}")
-
-    print(f"flip_file = {flip_file}, current_word = {current_word}, step = {step}, main_mode = {main_mode}")
 
     await event.edit(
         anti_tg_cache(message),
