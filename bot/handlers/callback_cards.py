@@ -43,7 +43,7 @@ async def handle_card_callback(event):
         else:
             current_word_new = current_word
 
-        await send_img(event, buttons, f"{current_word.replace(' ', '')}_{lang}.png", current_word_new, lang, "edit")
+        await send_img(event, buttons, get_image_filename(user_id, normalize_filename(current_word), lang), current_word_new, lang, "edit")
         await _update_user_words(user_id, "sport", current_word, lang)
         await update_data_events_db(user_id, "refresh_card", {"step": step})
 
