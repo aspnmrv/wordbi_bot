@@ -58,7 +58,7 @@ async def handle_custom_topic_input(event):
             await update_data_events_db(user_id, "cards_from_link_error", {"step": -1, "error": "api"})
             return
 
-        await finalize_cards_and_send_next_steps(event, user_id, card_words, "my_words", next_step=101)
+        await finalize_cards_and_send_next_steps(event, user_id, card_words, "tmp349201", next_step=109)
 
     except Exception as e:
         keyboard = await get_keyboard(["Завершить"])

@@ -13,7 +13,7 @@ async def get_my_cards(event):
     if code < 0:
         await event.client.send_message(
             event.chat_id,
-            "Еще не карточек ☺️\n\nНажимай на /start, чтобы добавить их",
+            "Еще нет карточек ☺️\n\nНажимай на /start, чтобы добавить их",
             buttons=Button.clear()
         )
         await update_data_events_db(user_id, "my_cards", {"step": -1, "error": "without cards"})
@@ -23,14 +23,13 @@ async def get_my_cards(event):
             await _update_current_user_step(user_id, 545)
 
             text = "Выбери тип карточек, которые нужно открыть🤗\n\n"
+            text += "▪️ База – карточки, созданные на основе твоих интересов и уровня языка\n"
+            text += "▪️ Мои карточки – карточки, созданные из своего набора слов или из файла"
+
             buttons = [[
-                Button.inline(text="По интересам", data=10),
-                Button.inline(text="Мои карточки", data=11),
+                Button.inline("База", data=10),
+                Button.inline("Мои карточки", data=11),
             ]]
+
             await event.client.send_message(event.chat_id, text, buttons=buttons)
-
-            desc = "▪️ По интересам – карточки, созданные на основе твоих интересов\n"
-            desc += "▪️ Мои карточки – карточки, созданные из своего набора слов или из файла"
-            await event.client.send_message(event.chat_id, desc, buttons=Button.clear())
-
             await update_data_events_db(user_id, "my_cards", {"step": step})

@@ -8,6 +8,7 @@ import psycopg2
 import json
 
 from psycopg2 import pool
+from psycopg2.extras import execute_values
 from globals import MINCONN, MAXCONN
 from datetime import datetime
 
@@ -593,7 +594,6 @@ async def update_user_stat_words_db(user_id, word) -> None:
     query = f"""
         INSERT INTO public.user_stat_new_words (user_id, word, created_at)
         VALUES ({user_id}, '{word}', '{created_at}')
-        ON CONFLICT (user_id, word) DO NOTHING;
     """
     cur.execute(query)
     conn.commit()
@@ -609,7 +609,7 @@ async def update_user_stat_learned_words_db(user_id, word) -> None:
     query = f"""
         INSERT INTO public.user_stat_learned_words (user_id, word, created_at)
         VALUES ({user_id}, '{word}', '{created_at}')
-        ON CONFLICT (user_id, word) DO NOTHING;
+        ON CONFLICT (user_id, word) DO UPDATE SET created_at = EXCLUDED.created_at
     """
     cur.execute(query)
     conn.commit()
@@ -617,18 +617,16 @@ async def update_user_stat_learned_words_db(user_id, word) -> None:
     return None
 
 
-async def update_user_stat_category_words_db(user_id, words, category) -> None:
+async def update_user_stat_category_words_db(user_id, words, category, is_system) -> None:
     """"""
     conn = GLOBAL_POOL.getconn()
     cur = conn.cursor()
     created_at = datetime.now()
 
-    for word in words:
+    for word, translate in words.items():
         query = f"""
-                INSERT INTO public.user_stat_words_category (user_id, created_at, category, word, updated_at)
-                VALUES ({user_id}, '{created_at}', '{category}', '{word}', '{created_at}')
-                ON CONFLICT (user_id, word)
-                DO UPDATE SET category = EXCLUDED.category, updated_at = EXCLUDED.updated_at;
+                INSERT INTO public.user_stat_words_category (user_id, created_at, category, word, translate, updated_at, is_system)
+                VALUES ({user_id}, '{created_at}', '{category}', '{word}', '{translate}', '{created_at}', {is_system})
             """
         cur.execute(query)
 
@@ -636,6 +634,116 @@ async def update_user_stat_category_words_db(user_id, words, category) -> None:
     GLOBAL_POOL.putconn(conn)
 
     return None
+
+
+async def update_user_stat_category_words_batches_db(user_id, words, category, is_system) -> None:
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    created_at = datetime.now()
+
+    values = [
+        (user_id, created_at, category, word, translate, created_at, is_system)
+        for word, translate in words.items()
+    ]
+
+    query = """
+        INSERT INTO public.user_stat_words_category 
+        (user_id, created_at, category, word, translate, updated_at, is_system)
+        VALUES %s
+    """
+
+    execute_values(cur, query, values)
+
+    conn.commit()
+    GLOBAL_POOL.putconn(conn)
+    return None
+
+
+async def update_user_self_category_words_db(user_id, category, is_system=False) -> None:
+    """"""
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    created_at = datetime.now()
+
+    query = f"""
+            UPDATE public.user_stat_words_category
+            SET category = '{category}', updated_at = '{created_at}', is_system = {is_system}
+            WHERE user_id = {user_id} AND category = 'tmp349201'
+        """
+    cur.execute(query)
+
+    conn.commit()
+    GLOBAL_POOL.putconn(conn)
+
+    return None
+
+
+async def delete_category_for_user(user_id, category, is_system=False):
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    cur.execute("""
+        DELETE FROM public.user_stat_words_category
+        WHERE user_id = %s AND category = %s AND is_system = %s
+    """, (user_id, category, is_system))
+    conn.commit()
+    GLOBAL_POOL.putconn(conn)
+
+
+async def get_user_categories_db(user_id, is_system=False):
+    """"""
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+
+    query = f"""
+            SELECT DISTINCT category
+            FROM public.user_stat_words_category
+            WHERE user_id = {user_id} AND is_system = {is_system}
+        """
+    cur.execute(query)
+    result = cur.fetchall()
+    GLOBAL_POOL.putconn(conn)
+
+    return [r[0] for r in result if r[0] not in ("tmp349201", None, "")]
+
+
+async def get_user_words_by_category_db(user_id, category, is_system=False):
+    """"""
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+
+    query = f"""
+            SELECT
+                word,
+                translate
+            FROM public.user_stat_words_category
+            WHERE user_id = {user_id} AND category = '{category}' AND is_system = {is_system}
+        """
+    cur.execute(query)
+    words = cur.fetchall()
+    GLOBAL_POOL.putconn(conn)
+
+    return {w[0]: w[1] for w in words} if words else None
+
+
+async def get_user_one_word_db(user_id, category, word, is_system=False):
+    """"""
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+
+    query = f"""
+            SELECT distinct
+                word,
+                translate
+            FROM public.user_stat_words_category
+            WHERE user_id = {user_id} AND category = '{category}' AND is_system = {is_system}
+                AND word = '{word}'
+            LIMIT 1
+        """
+    cur.execute(query)
+    words = cur.fetchall()
+    GLOBAL_POOL.putconn(conn)
+
+    return (words[0][0], words[0][1]) if words else None
 
 
 async def get_user_stat_new_words_db(user_id):

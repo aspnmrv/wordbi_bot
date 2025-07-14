@@ -41,7 +41,6 @@ async def handle_custom_topic_input(event):
 
     await event.client.send_message(event.chat_id, "Формирую список слов...", buttons=Button.clear())
 
-    level = await get_user_level_db(user_id)
     try:
         is_cut = False
         if await is_valid_word_list(message_text):
@@ -74,7 +73,7 @@ async def handle_custom_topic_input(event):
                 return
 
             await send_error_message(user_id, event, card_words)
-            await finalize_cards_and_send_next_steps(event, user_id, card_words, "my_words", next_step=101, is_cut=is_cut)
+            await finalize_cards_and_send_next_steps(event, user_id, card_words, "tmp349201", next_step=109, is_cut=is_cut)
         elif await is_simple_word_list(message_text):
             lines = message_text.splitlines()
             if len(lines) > 35:
@@ -106,7 +105,7 @@ async def handle_custom_topic_input(event):
                 return
 
             await send_error_message(user_id, event, card_words)
-            await finalize_cards_and_send_next_steps(event, user_id, card_words, "my_words", next_step=101, is_cut=is_cut)
+            await finalize_cards_and_send_next_steps(event, user_id, card_words, "tmp349201", next_step=109, is_cut=is_cut)
 
     except Exception as e:
         keyboard = await get_keyboard(["Завершить"])

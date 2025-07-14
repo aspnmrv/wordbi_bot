@@ -2,6 +2,9 @@ import config
 import asyncio
 import os, fnmatch
 import requests
+import re
+import hashlib
+import aiofiles
 import random
 import itertools
 import matplotlib.pyplot as plt
@@ -9,6 +12,7 @@ import seaborn as sns
 
 from pathlib import Path
 from datetime import datetime
+
 import numpy as np
 from scipy.interpolate import interp1d
 from telethon.tl.custom import Button
@@ -23,7 +27,7 @@ from collections import defaultdict
 from tempfile import NamedTemporaryFile
 from docx import Document
 
-from bot.db_tools import _update_user_states, _get_current_user_step, _get_user_words
+from bot.db_tools import _update_user_states, _get_current_user_step, _get_user_words, _update_user_choose_category
 from bot.db import get_user_topics_db, get_user_level_db, update_user_stat_category_words_db
 from bot.globals import TOPICS, WORDS, TRANSLATES
 from paths import PATH_IMAGES, PATH_FONT
@@ -161,7 +165,7 @@ async def get_diff_between_ts(last_ts: Optional[str]) -> float:
         return 1000
 
 
-async def build_list_of_words(user_topics: List[str], user_level: str, user_id: int = None) -> List[str]:
+async def build_list_of_words(user_topics: List[str], user_level: str, user_id: int = None):
     """Building a word list for the user depending on the level"""
 
     total_words = list()
@@ -179,20 +183,25 @@ async def build_list_of_words(user_topics: List[str], user_level: str, user_id: 
             words = values[level_key]
             total_words.append(words)
             for word in words:
-                word_to_category[word] = topic
+                word_to_category[word] = f"{TOPICS[topic]}_{level_key.upper()}_level"
 
-    result_words = random.sample(list(itertools.chain(*total_words)), 10)
+    print("word_to_category", word_to_category)
 
-    category_to_words = defaultdict(list)
-    for word in result_words:
-        category = word_to_category.get(word)
-        if category:
-            category_to_words[category].append(word)
+    bulk_data = {}
+    for word, category in word_to_category.items():
+        if category not in bulk_data:
+            bulk_data[category] = {}
+        bulk_data[category][word] = TRANSLATES[word]
 
-    for cat, words in category_to_words.items():
-        await update_user_stat_category_words_db(user_id, words, cat)
+    for category, words_dict in bulk_data.items():
+        await update_user_stat_category_words_db(
+            user_id=user_id,
+            words=words_dict,
+            category=category,
+            is_system=True
+        )
 
-    return result_words
+    return word_to_category
 
 
 async def build_history_message(data: List[Tuple[str, str, str]]) -> List[Dict[str, str]]:
@@ -274,6 +283,30 @@ async def get_code_fill_form(user_id: int) -> int:
     elif not user_words:
         return -4
     return 0
+
+
+async def get_users_info(user_id: int):
+    """"""
+
+    user_topics = await get_user_topics_db(user_id)
+    user_level = await get_user_level_db(user_id)
+    user_words = await _get_user_words(user_id)
+    print(user_words)
+    if not user_topics and not user_level:
+        return ""
+    else:
+        if user_level:
+            text_level = f"**Уровень:** {user_level}\n\n"
+        else:
+            text_level = f"**Уровень:** пока не выбран\n\n"
+        if user_topics:
+            text_topics = "**Выбранные интересы:**\n\n" + "\n".join(f"▪️ {interest}" for interest in user_topics) + "\n\n"
+        else:
+            text_topics = "**Выбранные интересы:** пока не выбраны\n\n"
+
+        text = "⚙️ Текущие настройки:\n\n" + text_level + text_topics
+
+    return text
 
 
 async def send_user_file_stat(event, file, text):
@@ -381,13 +414,31 @@ async def draw_words_category_chart(data):
     return file
 
 
+# async def extract_text_from_docx(path):
+#     """"""
+#     doc = Document(path)
+#     full_text = []
+#     for para in doc.paragraphs:
+#         full_text.append(para.text)
+#     return '\n'.join(full_text)
+
+
 async def extract_text_from_docx(path):
-    """"""
-    doc = Document(path)
-    full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    return '\n'.join(full_text)
+    ext = os.path.splitext(path)[1].lower()
+
+    if ext == ".txt":
+        async with aiofiles.open(path, mode="r", encoding="utf-8") as f:
+            content = await f.read()
+        return content
+
+    elif ext == ".docx":
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, lambda: "\n".join(
+            para.text for para in Document(path).paragraphs
+        ))
+
+    else:
+        raise ValueError(f"Unsupported file type: {ext}")
 
 
 async def is_valid_word_list(text):
@@ -428,3 +479,23 @@ async def cut_word_pairs(content, limit=35):
     """"""
     lines = [line.strip() for line in content.splitlines() if line.strip()]
     return "\n".join(lines[:limit])
+
+
+async def generate_uid(user_id, categories):
+    """
+    user_id: int или str
+    categories: list[str], e.g. ['sport', 'books']
+    """
+    sorted_cats = sorted(categories)
+    combined_str = f"{user_id}|" + "|".join(sorted_cats)
+
+    uid_hash = hashlib.sha256(combined_str.encode()).hexdigest()
+
+    return uid_hash[:5]
+
+
+async def is_valid_base_date(word):
+    """"""
+    pattern = r"^base_\d{4}-\d{2}-\d{2}.*$"
+
+    return bool(re.match(pattern, word))

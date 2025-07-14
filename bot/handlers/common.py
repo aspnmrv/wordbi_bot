@@ -1,3 +1,5 @@
+from telethon import events, Button
+
 from bot.tools import get_keyboard, build_img_cards
 from bot.db_tools import (
     _update_user_self_words, _update_current_user_step,
@@ -7,6 +9,7 @@ from bot.db import update_user_words_db, update_data_events_db, update_user_stat
 
 
 async def finalize_cards_and_send_next_steps(event, user_id, card_words, topic, next_step, is_cut: bool = False):
+    """"""
     await _update_user_self_words(user_id, card_words)
     fixed = {w.replace('/', ''): t.replace('/', '') for w, t in card_words.items()}
     await build_img_cards(fixed)
@@ -16,19 +19,19 @@ async def finalize_cards_and_send_next_steps(event, user_id, card_words, topic, 
     if not is_cut:
         await event.client.send_message(
             event.chat_id,
-            "Чтобы увидеть карточки, жмякай на Увидеть карточки 💜",
-            buttons=await get_keyboard(["Увидеть карточки 💜"])
+            "Почти все готово..\n\nВведи название для этой подборки, чтобы ты всегда мог вернуться к ней",
+            buttons=Button.clear()
         )
     else:
         await event.client.send_message(
             event.chat_id,
             "Список слов был слишком длинный. Пришлось его немного обрезать\n\n"
-            "Чтобы увидеть карточки, жмякай на Увидеть карточки 💜",
-            buttons=await get_keyboard(["Увидеть карточки 💜"])
+            "Почти все готово..\n\nВведи название для этой подборки, чтобы ты всегда мог вернуться к ней",
+            buttons=Button.clear()
         )
     await update_data_events_db(user_id, "cards_success", {"step": next_step})
     await _update_current_user_step(user_id, next_step)
-    await update_user_stat_category_words_db(user_id, list(fixed.keys()), topic)
+    await update_user_stat_category_words_db(user_id, fixed, topic, is_system=False)
 
 
 async def check_wrong_message(result):

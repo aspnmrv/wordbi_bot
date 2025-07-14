@@ -3,14 +3,15 @@ from telethon.tl.custom import Button
 from bot.tools import get_keyboard, send_img, get_translate_word, match_topics_name, is_expected_steps
 from bot.db_tools import (
     _get_current_user_step, _get_user_words, _get_user_self_words, _update_user_words,
-    _get_user_states, _update_current_user_step
+    _get_user_states, _update_current_user_step, _get_user_choose_category
 )
 from bot.db import (
     get_user_words_db,
     update_data_events_db,
     get_last_message_ellie_db,
     get_num_translates_db,
-    update_user_stat_words_db
+    update_user_stat_words_db,
+    get_user_words_by_category_db
 )
 from bot.bot_instance import bot
 
@@ -48,9 +49,10 @@ async def handle_card_callback(event):
 
     async def process_forward():
         if await is_expected_steps(user_id, [50]):
-            words_list = await get_user_words_db(user_id)
-
-            words_list = words_list[0]
+            category = await _get_user_choose_category(user_id)
+            category = category[0]
+            words_list = await get_user_words_by_category_db(user_id, category)
+            words_list = list(words_list.keys())
             state = await _get_user_words(user_id)
             current_word = state[0][1].lower()
             new_current_word = current_word
@@ -58,7 +60,10 @@ async def handle_card_callback(event):
             state = await _get_user_words(user_id)
             current_word = state[0][1]
 
-            words_list = await _get_user_self_words(user_id)
+            category = await _get_user_choose_category(user_id)
+            category = category[0]
+            words_list = await get_user_words_by_category_db(user_id, category)
+            words_list = list(words_list.keys())
             new_current_word = current_word
 
         for i in range(len(words_list) - 1):
@@ -105,14 +110,16 @@ async def handle_card_callback(event):
                 type_action="edit"
             )
 
-            await _update_user_words(user_id, "sport", current_word, "en")
+            await _update_user_words(user_id, category, current_word, "en")
             await update_data_events_db(user_id, "forward_card", {"step": step})
             await update_user_stat_words_db(user_id, current_word)
 
     async def process_backward():
         if await is_expected_steps(user_id, [50]):
-            words_list = await get_user_words_db(user_id)
-            words_list = words_list[0]
+            category = await _get_user_choose_category(user_id)
+            category = category[0]
+            words_list = await get_user_words_by_category_db(user_id, category)
+            words_list = list(words_list.keys())
             state = await _get_user_words(user_id)
             current_word = state[0][1]
             current_word = current_word.lower()
@@ -120,7 +127,10 @@ async def handle_card_callback(event):
         else:
             state = await _get_user_words(user_id)
             current_word = state[0][1]
-            words_list = await _get_user_self_words(user_id)
+            category = await _get_user_choose_category(user_id)
+            category = category[0]
+            words_list = await get_user_words_by_category_db(user_id, category)
+            words_list = list(words_list.keys())
             new_current_word = current_word
 
         for i in range(1, len(words_list)):
@@ -162,7 +172,7 @@ async def handle_card_callback(event):
                 type_action="edit"
             )
 
-            await _update_user_words(user_id, "sport", current_word, "en")
+            await _update_user_words(user_id, category, current_word, "en")
             await update_data_events_db(user_id, "backward_card", {"step": step})
         return
 
