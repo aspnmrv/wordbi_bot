@@ -1,6 +1,6 @@
 from telethon import events
 from telethon.tl.custom import Button
-from bot.tools import get_keyboard, send_img, get_translate_word, match_topics_name, is_expected_steps
+from bot.tools import get_keyboard, send_img, get_translate_word, match_topics_name, is_expected_steps, get_image_filename, normalize_filename
 from bot.db_tools import (
     _get_current_user_step, _get_user_words, _get_user_self_words, _update_user_words,
     _get_user_states, _update_current_user_step, _get_user_choose_category
@@ -80,7 +80,7 @@ async def handle_card_callback(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=f"{current_word.replace(' ', '')}_en.png",
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
                 current_word=current_word,
                 lang="en",
                 type_action="edit"
@@ -104,7 +104,7 @@ async def handle_card_callback(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=f"{current_word.replace(' ', '')}_en.png",
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
                 current_word=current_word,
                 lang="en",
                 type_action="edit"
@@ -146,7 +146,7 @@ async def handle_card_callback(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=f"{current_word.replace(' ', '')}_en.png",
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
                 current_word=current_word,
                 lang="en",
                 type_action="edit"
@@ -166,7 +166,7 @@ async def handle_card_callback(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=f"{current_word.replace(' ', '')}_en.png",
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
                 current_word=current_word,
                 lang="en",
                 type_action="edit"
