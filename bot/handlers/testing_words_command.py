@@ -112,7 +112,6 @@ async def start_testing(event, user_id, mode="en_ru"):
         await _update_user_test_sequence(user_id, words)
 
     current = await _get_user_test_words(user_id)
-
     if not current:
         current = words[0]
         await _update_user_test_words(user_id, current)
@@ -142,17 +141,26 @@ async def start_testing(event, user_id, mode="en_ru"):
         await update_data_events_db(user_id, "testing_complete", {"step": -1})
         return
 
+    # получаем перевод
+    category = await _get_user_choose_category(user_id=user_id)
+    user_word = await get_user_one_word_db(user_id, category[0], next_word, category[1])
+    user_word_en, user_word_ru_raw = user_word[0], user_word[1]
+    try:
+        user_word_ru = json.loads(user_word_ru_raw)
+    except:
+        user_word_ru = user_word_ru_raw
+
     if mode == "en_ru":
         file = f"{PATH_IMAGES}/{next_word.replace(' ', '')}_en.png"
         message = "Напиши перевод слова на русском:"
         next_step = 2011
-    else:
+    else:  # ru_en
         file = f"{PATH_IMAGES}/{next_word.replace(' ', '')}_ru.png"
         message = "Напиши перевод слова на английском:"
         next_step = 4011
 
     if not await check_exist_img(file):
-        await create_img_card(next_word.lower(), file)
+        await create_img_card((user_word_en if mode == "en_ru" else user_word_ru).lower(), file)
 
     buttons = [
         [Button.inline("🔄 Перевернуть", data="flip_card")],
@@ -169,6 +177,7 @@ async def start_testing(event, user_id, mode="en_ru"):
     await _update_user_test_words(user_id, next_word)
     await _update_current_user_step(user_id, next_step)
     await update_data_events_db(user_id, "testing", {"step": next_step})
+
 
 
 async def get_next_test_word(current, words):
