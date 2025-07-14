@@ -193,17 +193,28 @@ async def handle_flip_card(event, user_id):
     current_word = await _get_user_test_words(user_id)
     step = await _get_current_user_step(user_id)
     main_mode = await _get_user_main_mode(user_id)
+    category = await _get_user_choose_category(user_id=user_id)
+    user_word = await get_user_one_word_db(user_id, category[0], current_word, category[1])
+
+    user_word_en, user_word_ru_raw = user_word[0], user_word[1]
+    try:
+        user_word_ru = json.loads(user_word_ru_raw)
+    except:
+        user_word_ru = user_word_ru_raw
+
 
     if step in [2010, 2011, 3010]:  # en_ru
+        flip_text = user_word_ru
         flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_ru.png"
         next_step = 4011
     elif step in [4010, 4011, 5010]:  # ru_en
+        flip_text = user_word_en
         flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png"
         next_step = 2011
     else:
         return
 
-    await create_img_card(current_word.lower(), flip_file)
+    await create_img_card(flip_text.lower(), flip_file)
     # if not await check_exist_img(flip_file):
     #     await create_img_card(current_word.replace(' ', '').lower(), flip_file)
 
