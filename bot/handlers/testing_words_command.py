@@ -186,8 +186,9 @@ async def handle_flip_card(event, user_id):
     else:
         return
 
-    if not await check_exist_img(flip_file):
-        await create_img_card(current_word.replace(' ', '').lower(), flip_file)
+    await create_img_card(current_word.replace(' ', '').lower(), flip_file)
+    # if not await check_exist_img(flip_file):
+    #     await create_img_card(current_word.replace(' ', '').lower(), flip_file)
 
     if main_mode == "en_ru":
         message = "Переведи на русский язык:"

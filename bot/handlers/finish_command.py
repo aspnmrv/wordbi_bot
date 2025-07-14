@@ -11,7 +11,8 @@ async def get_end(event):
     step = await _get_current_user_step(user_id)
     main_mode = await _get_user_main_mode(user_id)
 
-    if await is_expected_steps(user_id, [52, 101, 61, 62, 51, 41, 2011, 3011, 2010, 3010, 901, 10, 50, 676, 4010, 4011, 5010, 7]):
+    if await is_expected_steps(user_id, [52, 101, 61, 62, 51, 41, 2011, 3011, 2010, 3010,
+                                         901, 10, 50, 676, 4010, 4011, 5010, 7, 904, 902]):
         await _update_current_user_step(user_id, 7)
         keyboard = await get_keyboard(["Выбрать другой режим ⚙️", "Оставить отзыв 💌"])
 
