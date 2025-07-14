@@ -11,12 +11,6 @@ CONN = sqlite3.connect("sophie.db")
 async def _create_db():
     """"""
     cur = CONN.cursor()
-    cur.execute(
-        """
-        DROP TABLE user_test_state;
-        """
-    )
-    CONN.commit()
 
     cur.execute(
         """
