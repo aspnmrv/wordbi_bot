@@ -1,6 +1,7 @@
 from telethon import events, Button
 import json
 import random
+import hashlib
 
 from bot.tools import get_keyboard, check_exist_img, create_img_card, normalize_filename
 from bot.db_tools import (
@@ -31,6 +32,13 @@ def random_invisible():
 
 def anti_tg_cache(text):
     return text + '\u200b'
+
+
+def file_hash(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        h.update(f.read())
+    return h.hexdigest()
 
 
 @bot.on(events.NewMessage(pattern="Проверить себя 🧠"))
@@ -81,13 +89,9 @@ async def callback_handler(event):
         await start_testing(event, user_id, mode="en_ru")
 
     elif data == "56":
-        print("56")
         step = await _get_current_user_step(user_id)
-        print("step", step)
         if step in [2010, 2011, 3010, 4010, 4011, 5010]:
-            print("if step in [2010, 2011, 3010, 4010, 4011, 5010]:")
             main_mode = await _get_user_main_mode(user_id)
-            print("main_mode", main_mode)
             await start_testing(event, user_id, mode=main_mode)
         else:
             await event.client.send_message(
@@ -141,7 +145,6 @@ async def start_testing(event, user_id, mode="en_ru"):
         await update_data_events_db(user_id, "testing_complete", {"step": -1})
         return
 
-    # получаем перевод
     category = await _get_user_choose_category(user_id=user_id)
     user_word = await get_user_one_word_db(user_id, category[0], next_word, category[1])
     user_word_en, user_word_ru_raw = user_word[0], user_word[1]
@@ -179,7 +182,6 @@ async def start_testing(event, user_id, mode="en_ru"):
     await update_data_events_db(user_id, "testing", {"step": next_step})
 
 
-
 async def get_next_test_word(current, words):
     if not words:
         return None
@@ -187,15 +189,6 @@ async def get_next_test_word(current, words):
         return words[0]
     i = words.index(current)
     return words[i + 1] if i + 1 < len(words) else None
-
-
-import hashlib
-
-def file_hash(path):
-    h = hashlib.sha256()
-    with open(path, 'rb') as f:
-        h.update(f.read())
-    return h.hexdigest()
 
 
 async def handle_flip_card(event, user_id):
@@ -211,26 +204,19 @@ async def handle_flip_card(event, user_id):
     except:
         user_word_ru = user_word_ru_raw
 
-
     if step in [2010, 2011, 3010]:  # en_ru
         flip_text = user_word_ru
         flip_file = f"{PATH_IMAGES}/{normalize_filename(current_word)}_ru.png"
         next_step = 4011
-        # caption = "Переведи на английский язык:"
     elif step in [4010, 4011, 5010]:  # ru_en
         flip_text = user_word_en
         flip_file = f"{PATH_IMAGES}/{normalize_filename(current_word)}_en.png"
         next_step = 2011
-        # caption = "Переведи на русский язык:"
     else:
         return
 
     await create_img_card(flip_text.lower(), flip_file)
     await _update_current_user_step(user_id, next_step)
-    # await update_data_events_db(user_id, "flip_card", {"step": step})
-    # message = caption + random_invisible()
-    # if not await check_exist_img(flip_file):
-    #     await create_img_card(current_word.replace(' ', '').lower(), flip_file)
 
     if main_mode == "ru_en":
         message = "Переведи на английский язык:"
@@ -241,12 +227,6 @@ async def handle_flip_card(event, user_id):
         [Button.inline("🔄 Перевернуть", data="flip_card")],
         [Button.inline("Пропустить", data="56")]
     ]
-
-    print(f"=== flip_card ===")
-    print(f"flip_file = {flip_file}")
-    print(f"hash = {file_hash(flip_file)}")
-    print(f"text on card = {flip_text}")
-    print(f"caption = {message}")
 
     await event.edit(
         anti_tg_cache(message),
