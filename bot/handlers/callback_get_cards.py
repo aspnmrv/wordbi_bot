@@ -63,7 +63,7 @@ async def handle_get_cards_callback(event):
         words_dict = await get_user_words_by_category_db(user_id, category, is_system=False)
         if words_dict:
             await _update_current_user_step(user_id, 903)
-            await build_img_cards(words_dict)
+            await build_img_cards(words_dict, user_id)
             await _update_user_choose_category(user_id=user_id, data=category, is_system=False)
             await _update_user_self_words(user_id, words_dict)
             text = f"📚 Вот слова из подборки '{category}':\n\n"
@@ -87,7 +87,7 @@ async def handle_get_cards_callback(event):
         words_dict = await get_user_words_by_category_db(user_id, category, is_system=True)
         if words_dict:
             await _update_current_user_step(user_id, 907)
-            await build_img_cards(words_dict)
+            await build_img_cards(words_dict, user_id)
             await _update_user_choose_category(user_id=user_id, data=category, is_system=True)
             await _update_user_self_words(user_id, words_dict)
             text = f"📚 Вот слова из подборки '{category}':\n\n"

@@ -12,7 +12,7 @@ async def finalize_cards_and_send_next_steps(event, user_id, card_words, topic, 
     """"""
     await _update_user_self_words(user_id, card_words)
     fixed = {w.replace('/', ''): t.replace('/', '') for w, t in card_words.items()}
-    await build_img_cards(fixed)
+    await build_img_cards(fixed, user_id)
     await _update_user_words(user_id, "self", "", "en")
     await _update_user_choose_topic(user_id, "self")
     await update_user_words_db(user_id, fixed, topic)

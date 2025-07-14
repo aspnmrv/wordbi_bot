@@ -102,12 +102,15 @@ async def create_img_card(text: str, filename: str) -> None:
         img.save(PATH_IMAGES / filename)
 
 
-async def build_img_cards(words: Dict[str, str]) -> None:
+async def build_img_cards(words: Dict[str, str], user_id: int) -> None:
     """"""
 
     for word, word_ru in words.items():
-        await create_img_card(word.lower(), f"{word.replace(' ', '').lower()}_en.png")
-        await create_img_card(word_ru.lower(), f"{word.replace(' ', '').lower()}_ru.png")
+        filename_en = get_image_filename(user_id, normalize_filename(word), "en")
+        filename_ru = get_image_filename(user_id, normalize_filename(word), "ru")
+
+        await create_img_card(word.lower(), filename_en)
+        await create_img_card(word_ru.lower(), filename_ru)
 
     return
 
