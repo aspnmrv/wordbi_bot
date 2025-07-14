@@ -15,8 +15,12 @@ async def my_profile(event):
         await _update_current_user_step(user_id, 5821)
 
         code = await get_code_fill_form(user_id)
-        if code in (-1, -3):
-            btn_text_int = "Изменить интересы" if code == -3 else "Выбрать интересы"
+
+        if code == -1:
+            btn_text_int = "Выбрать интересы"
+            btn_text_lev = "Выбрать уровень языка"
+        elif code == -3:
+            btn_text_int = "Изменить интересы"
             btn_text_lev = "Выбрать уровень языка"
         elif code == -2:
             btn_text_int = "Выбрать интересы"

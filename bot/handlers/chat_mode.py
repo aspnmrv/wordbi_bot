@@ -36,7 +36,7 @@ async def start_chat(event):
     user_id = event.message.peer_id.user_id
     step = await _get_current_user_step(user_id)
 
-    if await is_expected_steps(user_id, [1, 6, 9]):
+    if await is_expected_steps(user_id, [1, 6, 9, 545]):
         await _update_current_user_step(user_id, 42)
         keyboard = await get_keyboard(["Поболтать 💌", "Назад"])
         text = (

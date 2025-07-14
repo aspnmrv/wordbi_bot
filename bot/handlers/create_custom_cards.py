@@ -31,8 +31,9 @@ async def create_self_words(event):
             await event.client.send_message(event.chat_id, text, buttons=Button.clear())
             await update_data_events_db(user_id, "create_words", {"step": step})
         else:
+            keyboard = await get_keyboard(["Назад"])
             text = f"У тебя уже сохранено {len(categories)} наборов слов, ого!\n\n" \
                    f"К сожалению, больше {len(categories)} нельзя. Удали " \
                    f"ненужные в разделе /my_cards -> Мои карточки и попробуй снова 🙃"
-            await event.client.send_message(event.chat_id, text,)
+            await event.client.send_message(event.chat_id, text, buttons=keyboard)
             await update_data_events_db(user_id, "create_words_error", {"step": step, "error": "too_many_categories"})

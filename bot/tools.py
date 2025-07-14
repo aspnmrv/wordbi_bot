@@ -291,9 +291,10 @@ async def get_users_info(user_id: int):
     user_topics = await get_user_topics_db(user_id)
     user_level = await get_user_level_db(user_id)
     user_words = await _get_user_words(user_id)
-    print(user_words)
+
     if not user_topics and not user_level:
-        return ""
+        text_level = f"**Уровень:** пока не выбран\n\n"
+        text_topics = "**Выбранные интересы:** пока не выбраны\n\n"
     else:
         if user_level:
             text_level = f"**Уровень:** {user_level}\n\n"
@@ -304,7 +305,7 @@ async def get_users_info(user_id: int):
         else:
             text_topics = "**Выбранные интересы:** пока не выбраны\n\n"
 
-        text = "⚙️ Текущие настройки:\n\n" + text_level + text_topics
+    text = "⚙️ Текущие настройки:\n\n" + text_level + text_topics
 
     return text
 

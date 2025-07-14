@@ -45,3 +45,5 @@ async def get_back(event):
         await show_categories_menu(event, user_id, is_system_words=True)
     elif await is_expected_steps(user_id, [545, 902]):
         await get_my_cards(event)
+    elif await is_expected_steps(user_id, [52]):
+        await cards(event)
