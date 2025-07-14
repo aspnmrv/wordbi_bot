@@ -627,6 +627,7 @@ async def update_user_stat_category_words_db(user_id, words, category, is_system
         query = f"""
                 INSERT INTO public.user_stat_words_category (user_id, created_at, category, word, translate, updated_at, is_system)
                 VALUES ({user_id}, '{created_at}', '{category}', '{word}', '{translate}', '{created_at}', {is_system})
+                ON CONFLICT (user_id, category, word) DO NOTHING
             """
         cur.execute(query)
 
@@ -650,6 +651,7 @@ async def update_user_stat_category_words_batches_db(user_id, words, category, i
         INSERT INTO public.user_stat_words_category 
         (user_id, created_at, category, word, translate, updated_at, is_system)
         VALUES %s
+        ON CONFLICT (user_id, category, word) DO NOTHING
     """
 
     execute_values(cur, query, values)
@@ -660,21 +662,19 @@ async def update_user_stat_category_words_batches_db(user_id, words, category, i
 
 
 async def update_user_self_category_words_db(user_id, category, is_system=False) -> None:
-    """"""
     conn = GLOBAL_POOL.getconn()
     cur = conn.cursor()
     created_at = datetime.now()
 
-    query = f"""
-            UPDATE public.user_stat_words_category
-            SET category = '{category}', updated_at = '{created_at}', is_system = {is_system}
-            WHERE user_id = {user_id} AND category = 'tmp349201'
-        """
-    cur.execute(query)
+    query = """
+        UPDATE public.user_stat_words_category
+        SET category = %s, updated_at = %s, is_system = %s
+        WHERE user_id = %s AND category = 'tmp349201'
+    """
+    cur.execute(query, (category, created_at, is_system, user_id))
 
     conn.commit()
     GLOBAL_POOL.putconn(conn)
-
     return None
 
 
