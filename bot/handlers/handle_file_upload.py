@@ -47,7 +47,7 @@ async def handle_docx_upload(event):
 
         is_cut = False
 
-        if len(content.split(" ")) > 300:
+        if len(content.split(" ")) > 120:
             content = await cut_word_pairs(content)
             is_cut = True
 
