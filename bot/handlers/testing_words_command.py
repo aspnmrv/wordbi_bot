@@ -204,26 +204,22 @@ async def handle_flip_card(event, user_id):
 
 
     if step in [2010, 2011, 3010]:  # en_ru
-        flip_text = user_word_ru
+        lip_text = user_word_ru
         flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_ru.png"
         next_step = 4011
+        caption_text = "Переведи на русский язык:"
     elif step in [4010, 4011, 5010]:  # ru_en
         flip_text = user_word_en
         flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png"
         next_step = 2011
+        caption_text = "Переведи на английский язык:"
     else:
         return
 
     await create_img_card(flip_text.lower(), flip_file)
+    message = caption_text + random_invisible()
     # if not await check_exist_img(flip_file):
     #     await create_img_card(current_word.replace(' ', '').lower(), flip_file)
-
-    if main_mode == "en_ru":
-        message = "Переведи на русский язык:" + random_invisible()
-    elif main_mode == "ru_en":
-        message = "Переведи на английский язык:" + random_invisible()
-    else:
-        message = "Напиши перевод слова:" + random_invisible()
 
     buttons = [
         [Button.inline("🔄 Перевернуть", data="flip_card")],
