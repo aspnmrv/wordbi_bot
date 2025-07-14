@@ -503,3 +503,7 @@ async def is_valid_base_date(word):
     pattern = r"^base_\d{4}-\d{2}-\d{2}.*$"
 
     return bool(re.match(pattern, word))
+
+
+async def normalize_filename(word):
+    return word.strip().replace(' ', '').lower()
