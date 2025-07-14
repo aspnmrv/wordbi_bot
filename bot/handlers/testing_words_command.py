@@ -25,6 +25,14 @@ from paths import PATH_IMAGES
 from bot.bot_instance import bot
 
 
+def random_invisible():
+    return '\u200b' * random.randint(1,3)
+
+
+def anti_tg_cache(text):
+    return text + '\u200b'
+
+
 @bot.on(events.NewMessage(pattern="Проверить себя 🧠"))
 async def testing_words(event):
     user_id = event.message.peer_id.user_id
@@ -191,11 +199,11 @@ async def handle_flip_card(event, user_id):
     #     await create_img_card(current_word.replace(' ', '').lower(), flip_file)
 
     if main_mode == "en_ru":
-        message = "Переведи на русский язык:"
+        message = "Переведи на русский язык:" + random_invisible()
     elif main_mode == "ru_en":
-        message = "Переведи на английский язык:"
+        message = "Переведи на английский язык:" + random_invisible()
     else:
-        message = "Напиши перевод слова:"
+        message = "Напиши перевод слова:" + random_invisible()
 
     buttons = [
         [Button.inline("🔄 Перевернуть", data="flip_card")],
@@ -203,7 +211,7 @@ async def handle_flip_card(event, user_id):
     ]
 
     await event.edit(
-        message,
+        anti_tg_cache(message),
         buttons=buttons,
         file=flip_file
     )
