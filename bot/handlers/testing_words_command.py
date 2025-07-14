@@ -3,7 +3,7 @@ import json
 import random
 import hashlib
 
-from bot.tools import get_keyboard, check_exist_img, create_img_card, normalize_filename
+from bot.tools import get_keyboard, check_exist_img, create_img_card, normalize_filename, get_image_filename
 from bot.db_tools import (
     _get_current_user_step,
     _update_current_user_step,
@@ -154,11 +154,11 @@ async def start_testing(event, user_id, mode="en_ru"):
         user_word_ru = user_word_ru_raw
 
     if mode == "en_ru":
-        file = f"{PATH_IMAGES}/{normalize_filename(next_word)}_en.png"
+        file = get_image_filename(user_id, normalize_filename(next_word), "en")
         message = "Напиши перевод слова на русском:"
         next_step = 2011
     else:  # ru_en
-        file = f"{PATH_IMAGES}/{normalize_filename(next_word)}_ru.png"
+        file = get_image_filename(user_id, normalize_filename(next_word), "ru")
         message = "Напиши перевод слова на английском:"
         next_step = 4011
 
@@ -206,11 +206,11 @@ async def handle_flip_card(event, user_id):
 
     if step in [2010, 2011, 3010]:  # en_ru
         flip_text = user_word_ru
-        flip_file = f"{PATH_IMAGES}/{normalize_filename(current_word)}_ru.png"
+        flip_file = get_image_filename(user_id, normalize_filename(current_word), "ru")
         next_step = 4011
     elif step in [4010, 4011, 5010]:  # ru_en
         flip_text = user_word_en
-        flip_file = f"{PATH_IMAGES}/{normalize_filename(current_word)}_en.png"
+        flip_file = get_image_filename(user_id, normalize_filename(current_word), "en")
         next_step = 2011
     else:
         return

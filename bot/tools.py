@@ -507,3 +507,11 @@ async def is_valid_base_date(word):
 
 async def normalize_filename(word):
     return word.strip().replace(' ', '').lower()
+
+
+def get_image_filename(user_id, word, lang):
+    """
+    """
+    unique_str = f"{user_id}_{word.strip().lower()}_{lang}"
+    hash_digest = hashlib.md5(unique_str.encode()).hexdigest()
+    return f"{PATH_IMAGES}/{hash_digest}.png"
