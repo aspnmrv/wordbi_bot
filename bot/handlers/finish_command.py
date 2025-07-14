@@ -20,7 +20,7 @@ async def get_end(event):
                "А чтобы увидеть статистику по своему прогрессу, можешь запустить команду /my_stat в боковом меню"
         await event.client.send_message(event.chat_id, text, buttons=keyboard)
 
-        if main_mode:
+        if main_mode and not await is_expected_steps(user_id, [52]):
             opposite_mode = "ru_en" if main_mode == "en_ru" else "en_ru"
             if opposite_mode == "ru_en":
                 opposite_text = "📝 Хочешь попробовать теперь перевести с русского на английский?"

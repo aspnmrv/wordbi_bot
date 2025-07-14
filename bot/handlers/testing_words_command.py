@@ -152,7 +152,7 @@ async def start_testing(event, user_id, mode="en_ru"):
         next_step = 4011
 
     if not await check_exist_img(file):
-        await create_img_card(next_word.replace(' ', '').lower(), file)
+        await create_img_card(next_word.lower().lower(), file)
 
     buttons = [
         [Button.inline("🔄 Перевернуть", data="flip_card")],
@@ -180,6 +180,15 @@ async def get_next_test_word(current, words):
     return words[i + 1] if i + 1 < len(words) else None
 
 
+import hashlib
+
+def file_hash(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        h.update(f.read())
+    return h.hexdigest()
+
+
 async def handle_flip_card(event, user_id):
     current_word = await _get_user_test_words(user_id)
     step = await _get_current_user_step(user_id)
@@ -194,7 +203,7 @@ async def handle_flip_card(event, user_id):
     else:
         return
 
-    await create_img_card(current_word.replace(' ', '').lower(), flip_file)
+    await create_img_card(current_word.lower(), flip_file)
     # if not await check_exist_img(flip_file):
     #     await create_img_card(current_word.replace(' ', '').lower(), flip_file)
 
@@ -209,6 +218,12 @@ async def handle_flip_card(event, user_id):
         [Button.inline("🔄 Перевернуть", data="flip_card")],
         [Button.inline("Пропустить", data="56")]
     ]
+
+    print(f"flip_file = {flip_file}")
+    print(f"hash = {file_hash(flip_file)}")
+    print(f"caption = {message}")
+
+    print(f"flip_file = {flip_file}, current_word = {current_word}, step = {step}, main_mode = {main_mode}")
 
     await event.edit(
         anti_tg_cache(message),

@@ -85,6 +85,9 @@ async def create_img_card(text: str, filename: str) -> None:
 
     base_img = Image.open(PATH_IMAGES / "test.png")
 
+    print(f"=== create_img_card ===")
+    print(f"Saving card for text: '{text}' to file: '{filename}'")
+
     with base_img.copy() as img:
         if len(text) < 15:
             size = 50

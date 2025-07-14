@@ -28,7 +28,8 @@ async def create_self_words(event):
                 "и я сгенерирую карточки по выбранным тобой темам. Твой уровень языка тоже учту 🤗"
                 "\nНапример: IT, Химия или Домашние животные\n\n"
             )
-            await event.client.send_message(event.chat_id, text, buttons=Button.clear())
+            keyboard = await get_keyboard(["Назад"])
+            await event.client.send_message(event.chat_id, text, buttons=keyboard)
             await update_data_events_db(user_id, "create_words", {"step": step})
         else:
             keyboard = await get_keyboard(["Назад"])
