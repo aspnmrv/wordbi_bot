@@ -204,19 +204,21 @@ async def handle_flip_card(event, user_id):
 
 
     if step in [2010, 2011, 3010]:  # en_ru
-        flip_text = user_word_en
-        flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png"
+        flip_text = user_word_ru
+        flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_ru.png"
         next_step = 4011
         # caption = "Переведи на английский язык:"
     elif step in [4010, 4011, 5010]:  # ru_en
-        flip_text = user_word_ru
-        flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_ru.png"
+        flip_text = user_word_en
+        flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png"
         next_step = 2011
         # caption = "Переведи на русский язык:"
     else:
         return
 
     await create_img_card(flip_text.lower(), flip_file)
+    await _update_current_user_step(user_id, next_step)
+    # await update_data_events_db(user_id, "flip_card", {"step": step})
     # message = caption + random_invisible()
     # if not await check_exist_img(flip_file):
     #     await create_img_card(current_word.replace(' ', '').lower(), flip_file)
