@@ -85,9 +85,6 @@ async def create_img_card(text: str, filename: str) -> None:
 
     base_img = Image.open(PATH_IMAGES / "test.png")
 
-    print(f"=== create_img_card ===")
-    print(f"Saving card for text: '{text}' to file: '{filename}'")
-
     with base_img.copy() as img:
         if len(text) < 15:
             size = 50
@@ -102,12 +99,12 @@ async def create_img_card(text: str, filename: str) -> None:
         img.save(PATH_IMAGES / filename)
 
 
-async def build_img_cards(words: Dict[str, str], user_id: int) -> None:
+async def build_img_cards(words: Dict[str, str], user_id: int, category: str) -> None:
     """"""
 
     for word, word_ru in words.items():
-        filename_en = get_image_filename(user_id, normalize_filename(word), "en")
-        filename_ru = get_image_filename(user_id, normalize_filename(word), "ru")
+        filename_en = get_image_filename(user_id, normalize_filename(word), "en", normalize_filename(category))
+        filename_ru = get_image_filename(user_id, normalize_filename(word), "ru", normalize_filename(category))
 
         await create_img_card(word.lower(), filename_en)
         await create_img_card(word_ru.lower(), filename_ru)
@@ -244,10 +241,10 @@ async def send_img(
     if await check_exist_img(file_name):
         if type_action == "send":
             await event.client.send_message(event.chat_id, buttons=buttons,
-                                            file=f"/{PATH_IMAGES}/{file_name}")
+                                            file=file_name)
         elif type_action == "edit":
             await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-                                            file=f"/{PATH_IMAGES}/{file_name}",
+                                            file=file_name,
                                             buttons=buttons)
         else:
             raise ValueError(f"Invalid action type: {type_action}. Expected 'send' or 'edit'.")
@@ -255,10 +252,10 @@ async def send_img(
         await create_img_card(current_word.lower(), file_name)
         if type_action == "send":
             await event.client.send_message(event.chat_id, buttons=buttons,
-                                            file=f"/{PATH_IMAGES}/{file_name}")
+                                            file=file_name)
         elif type_action == "edit":
             await event.client.edit_message(event.sender_id, event.original_update.msg_id,
-                                            file=f"/{PATH_IMAGES}/{file_name}",
+                                            file=file_name,
                                             buttons=buttons)
         else:
             raise ValueError(f"Invalid action type: {type_action}. Expected 'send' or 'edit'.")
@@ -512,9 +509,8 @@ def normalize_filename(word):
     return word.strip().replace(' ', '').lower()
 
 
-def get_image_filename(user_id, word, lang):
-    """
-    """
-    unique_str = f"{user_id}_{word.strip().lower()}_{lang}"
-    hash_digest = hashlib.md5(unique_str.encode()).hexdigest()
-    return f"{PATH_IMAGES}/{hash_digest}.png"
+def get_image_filename(user_id: int, word: str, lang: str, category: str) -> str:
+    safe_category = normalize_filename(category)
+    unique_str = f"{user_id}_{safe_category}_{word.strip().lower()}_{lang}"
+    hashed_name = hashlib.sha256(unique_str.encode()).hexdigest()
+    return f"{PATH_IMAGES}/{hashed_name}.png"

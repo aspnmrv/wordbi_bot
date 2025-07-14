@@ -62,7 +62,7 @@ async def get_start_cards(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en", normalize_filename(category)),
                 current_word=current_word,
                 lang="en",
                 type_action="send"

@@ -154,11 +154,11 @@ async def start_testing(event, user_id, mode="en_ru"):
         user_word_ru = user_word_ru_raw
 
     if mode == "en_ru":
-        file = get_image_filename(user_id, normalize_filename(next_word), "en")
+        file = get_image_filename(user_id, normalize_filename(next_word), "en", normalize_filename(category[0]))
         message = "Напиши перевод слова на русском:"
         next_step = 2011
     else:  # ru_en
-        file = get_image_filename(user_id, normalize_filename(next_word), "ru")
+        file = get_image_filename(user_id, normalize_filename(next_word), "ru", normalize_filename(category[0]))
         message = "Напиши перевод слова на английском:"
         next_step = 4011
 
@@ -206,11 +206,11 @@ async def handle_flip_card(event, user_id):
 
     if step in [2010, 2011, 3010]:  # en_ru
         flip_text = user_word_ru
-        flip_file = get_image_filename(user_id, normalize_filename(current_word), "ru")
+        flip_file = get_image_filename(user_id, normalize_filename(current_word), "ru", normalize_filename(category[0]))
         next_step = 4011
     elif step in [4010, 4011, 5010]:  # ru_en
         flip_text = user_word_en
-        flip_file = get_image_filename(user_id, normalize_filename(current_word), "en")
+        flip_file = get_image_filename(user_id, normalize_filename(current_word), "en", normalize_filename(category[0]))
         next_step = 2011
     else:
         return

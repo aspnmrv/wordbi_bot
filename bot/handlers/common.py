@@ -1,9 +1,9 @@
 from telethon import events, Button
 
-from bot.tools import get_keyboard, build_img_cards
+from bot.tools import get_keyboard, build_img_cards, normalize_filename
 from bot.db_tools import (
     _update_user_self_words, _update_current_user_step,
-    _update_user_words, _update_user_choose_topic
+    _update_user_words, _update_user_choose_topic, _get_user_choose_category
 )
 from bot.db import update_user_words_db, update_data_events_db, update_user_stat_category_words_db
 
@@ -12,7 +12,10 @@ async def finalize_cards_and_send_next_steps(event, user_id, card_words, topic, 
     """"""
     await _update_user_self_words(user_id, card_words)
     fixed = {w.replace('/', ''): t.replace('/', '') for w, t in card_words.items()}
-    await build_img_cards(fixed, user_id)
+    category = await _get_user_choose_category(user_id=user_id)
+    category = category[0]
+
+    await build_img_cards(fixed, user_id, normalize_filename(category))
     await _update_user_words(user_id, "self", "", "en")
     await _update_user_choose_topic(user_id, "self")
     await update_user_words_db(user_id, fixed, topic)

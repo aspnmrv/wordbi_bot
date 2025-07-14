@@ -12,7 +12,7 @@ from bot.db import (
     get_user_words_by_category_db,
     update_data_events_db
 )
-from bot.tools import get_keyboard, build_img_cards, is_expected_steps, is_valid_base_date
+from bot.tools import get_keyboard, build_img_cards, is_expected_steps, is_valid_base_date, normalize_filename
 from bot.handlers.cards_by_interest import get_start_cards
 from bot.bot_instance import bot
 
@@ -63,7 +63,7 @@ async def handle_get_cards_callback(event):
         words_dict = await get_user_words_by_category_db(user_id, category, is_system=False)
         if words_dict:
             await _update_current_user_step(user_id, 903)
-            await build_img_cards(words_dict, user_id)
+            await build_img_cards(words_dict, user_id, normalize_filename(category))
             await _update_user_choose_category(user_id=user_id, data=category, is_system=False)
             await _update_user_self_words(user_id, words_dict)
             text = f"📚 Вот слова из подборки '{category}':\n\n"
@@ -87,7 +87,7 @@ async def handle_get_cards_callback(event):
         words_dict = await get_user_words_by_category_db(user_id, category, is_system=True)
         if words_dict:
             await _update_current_user_step(user_id, 907)
-            await build_img_cards(words_dict, user_id)
+            await build_img_cards(words_dict, user_id, normalize_filename(category))
             await _update_user_choose_category(user_id=user_id, data=category, is_system=True)
             await _update_user_self_words(user_id, words_dict)
             text = f"📚 Вот слова из подборки '{category}':\n\n"

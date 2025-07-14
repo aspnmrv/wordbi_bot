@@ -24,6 +24,8 @@ async def handle_card_callback(event):
     async def process_refresh():
         state = await _get_user_words(user_id)
         current_topic, current_word, current_lang = state[0]
+        category = await _get_user_choose_category(user_id=user_id)
+        category = category[0]
 
         buttons = [[
             Button.inline(text="⬅️", data=-1),
@@ -43,7 +45,14 @@ async def handle_card_callback(event):
         else:
             current_word_new = current_word
 
-        await send_img(event, buttons, get_image_filename(user_id, normalize_filename(current_word), lang), current_word_new, lang, "edit")
+        await send_img(
+            event,
+            buttons,
+            get_image_filename(user_id, normalize_filename(current_word), lang, normalize_filename(category)),
+            current_word_new,
+            lang,
+            "edit"
+        )
         await _update_user_words(user_id, "sport", current_word, lang)
         await update_data_events_db(user_id, "refresh_card", {"step": step})
 
@@ -80,7 +89,7 @@ async def handle_card_callback(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en", normalize_filename(category)),
                 current_word=current_word,
                 lang="en",
                 type_action="edit"
@@ -104,7 +113,7 @@ async def handle_card_callback(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en", normalize_filename(category)),
                 current_word=current_word,
                 lang="en",
                 type_action="edit"
@@ -146,7 +155,7 @@ async def handle_card_callback(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en", normalize_filename(category)),
                 current_word=current_word,
                 lang="en",
                 type_action="edit"
@@ -166,7 +175,7 @@ async def handle_card_callback(event):
             await send_img(
                 event=event,
                 buttons=buttons,
-                file_name=get_image_filename(user_id, normalize_filename(current_word), "en"),
+                file_name=get_image_filename(user_id, normalize_filename(current_word), "en", normalize_filename(category)),
                 current_word=current_word,
                 lang="en",
                 type_action="edit"
