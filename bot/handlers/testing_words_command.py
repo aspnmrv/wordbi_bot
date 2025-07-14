@@ -144,11 +144,11 @@ async def start_testing(event, user_id, mode="en_ru"):
 
     if mode == "en_ru":
         file = f"{PATH_IMAGES}/{next_word.replace(' ', '')}_en.png"
-        message = "Напиши перевод слова на русском:"
+        message = "Переведи на русский язык:"
         next_step = 2011
     else:
         file = f"{PATH_IMAGES}/{next_word.replace(' ', '')}_ru.png"
-        message = "Напиши перевод слова на английском:"
+        message = "Переведи на английский язык:"
         next_step = 4011
 
     if not await check_exist_img(file):
@@ -206,11 +206,11 @@ async def handle_flip_card(event, user_id):
     if step in [2010, 2011, 3010]:  # en_ru
         flip_text = user_word_ru
         flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_ru.png"
-        next_step = 4011
+        next_step = 4011 if main_mode == "ru_en" else 2011
     elif step in [4010, 4011, 5010]:  # ru_en
         flip_text = user_word_en
         flip_file = f"{PATH_IMAGES}/{current_word.replace(' ', '')}_en.png"
-        next_step = 2011
+        next_step = 4011 if main_mode == "ru_en" else 2011
     else:
         return
 
