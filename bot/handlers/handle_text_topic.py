@@ -23,7 +23,20 @@ async def handle_custom_topic_input(event):
     if not await is_expected_steps(user_id, [52]):
         return
 
-    if message_text in ("Quiz me 📝", "Поболтать 💌", "Завершить", "Проверить себя 🧠", "Создать свой набор слов 🧬"):
+    if message_text in (
+        "Quiz me 📝",
+        "Поболтать 💌",
+        "Завершить",
+        "Проверить себя 🧠",
+        "Создать свой набор слов 🧬",
+        "Назад",
+        "/my_profile",
+        "/my_cards",
+        "/my_stat",
+        "/reviews",
+        "/start",
+        "👾 База"
+    ):
         return
 
     if event.message.file:

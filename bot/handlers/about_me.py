@@ -5,6 +5,7 @@ from bot.tools import get_keyboard, is_expected_steps
 from bot.db_tools import _get_current_user_step, _update_current_user_step
 from bot.db import update_data_events_db
 from bot.bot_instance import bot
+from paths import PATH_DEMO
 
 
 @bot.on(events.NewMessage(pattern="Обо мне 👾"))
@@ -22,10 +23,11 @@ async def about_me(event):
             "можно тренировать в любое время и отслеживать свой прогресс 🙂"
         )
         await event.client.send_message(event.chat_id, text, buttons=keyboard)
-        if os.path.exists("videos/how_about_me_works.mp4"):
+        if os.path.exists(f"{PATH_DEMO}/first_demo.mp4"):
             await event.client.send_file(
                 event.chat_id,
-                file="videos/how_about_me_works.mp4",
-                caption="А вот краткая инструкция, как можно загрузить слова 🤗"
+                file=f"{PATH_DEMO}/first_demo.mp4",
+                caption="А вот краткая инструкция, как можно загрузить слова 🤗",
+                supports_streaming=True
             )
         await update_data_events_db(user_id, "about_me", {"step": step})

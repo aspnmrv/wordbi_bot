@@ -28,7 +28,7 @@ from tempfile import NamedTemporaryFile
 from docx import Document
 
 from bot.db_tools import _update_user_states, _get_current_user_step, _get_user_words, _update_user_choose_category
-from bot.db import get_user_topics_db, get_user_level_db, update_user_stat_category_words_db
+from bot.db import get_user_topics_db, get_user_level_db, update_user_stat_category_words_db, get_user_categories_db
 from bot.globals import TOPICS, WORDS, TRANSLATES
 from paths import PATH_IMAGES, PATH_FONT
 
@@ -303,15 +303,15 @@ async def get_code_fill_form(user_id: int) -> int:
 
     user_topics = await get_user_topics_db(user_id)
     user_level = await get_user_level_db(user_id)
-    user_words = await _get_user_words(user_id)
-    if not user_topics and not user_level:
-        return -1
+    user_words = await get_user_categories_db(user_id, False) + await get_user_categories_db(user_id, True)
+    if not user_words:
+        return -4
+    elif not user_topics and not user_level:
+        return - 1
     elif not user_topics:
         return -2
     elif not user_level:
         return -3
-    elif not user_words:
-        return -4
     return 0
 
 

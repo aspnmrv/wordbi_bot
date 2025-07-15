@@ -1,8 +1,11 @@
+import os
+
 from telethon import events, Button
 from bot.tools import get_keyboard, is_expected_steps
 from bot.db_tools import _get_current_user_step, _update_current_user_step
 from bot.db import update_data_events_db, get_user_categories_db
 from bot.bot_instance import bot
+from paths import PATH_DEMO
 
 
 @bot.on(events.NewMessage(pattern="Создать свой набор слов 🧬"))
@@ -32,6 +35,13 @@ async def create_self_words(event):
             )
             keyboard = await get_keyboard(["Назад"])
             await event.client.send_message(event.chat_id, text, buttons=keyboard, parse_mode="Markdown")
+            if os.path.exists(f"{PATH_DEMO}/second_demo.mp4"):
+                await event.client.send_file(
+                    event.chat_id,
+                    file=f"{PATH_DEMO}/second_demo.mp4",
+                    caption="А вот краткая инструкция, как можно загрузить слова 🤗",
+                    supports_streaming=True
+                )
             await update_data_events_db(user_id, "create_words", {"step": step})
         else:
             keyboard = await get_keyboard(["Назад"])

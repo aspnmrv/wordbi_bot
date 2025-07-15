@@ -8,9 +8,11 @@ from bot.bot_instance import bot
 @bot.on(events.NewMessage(pattern="/my_cards"))
 async def get_my_cards(event):
     user_id = event.message.peer_id.user_id
+    print("user_id", user_id)
     code = await get_code_fill_form(user_id)
+    print("code", code)
 
-    if code < 0:
+    if code == -4:
         await event.client.send_message(
             event.chat_id,
             "Еще нет карточек ☺️\n\nНажимай на /start, чтобы добавить их",
