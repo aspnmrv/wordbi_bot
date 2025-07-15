@@ -43,21 +43,21 @@ GLOBAL_POOL = create_pool_from_config(MINCONN, MAXCONN, CONFIG_PATH)
 
 async def increment_counter_and_check(user_id: int, counter_type: str, limit: int) -> bool:
     conn = GLOBAL_POOL.getconn()
-    cur = conn.cursor()
-    today = datetime.today().strftime("%Y-%m-%d")
-    cur.execute("""
-        INSERT INTO anti_abuse_counters (user_id, counter_type, counter_value, counter_date)
-        VALUES (%s, %s, 1, %s)
-        ON CONFLICT (user_id, counter_type, counter_date)
-        DO UPDATE SET counter_value = anti_abuse_counters.counter_value + 1
-    """, (user_id, counter_type, today))
-    cur.execute("""
-        SELECT counter_value FROM anti_abuse_counters
-        WHERE user_id = %s AND counter_type = %s AND counter_date = %s
-    """, (user_id, counter_type, today))
-    value = cur.fetchone()[0]
-    GLOBAL_POOL.putconn(conn)
-    return value <= limit
+    try:
+        cur = conn.cursor()
+        today = datetime.today().strftime("%Y-%m-%d")
+        cur.execute("""
+            INSERT INTO anti_abuse_counters (user_id, counter_type, counter_value, counter_date)
+            VALUES (%s, %s, 1, %s)
+            ON CONFLICT (user_id, counter_type, counter_date)
+            DO UPDATE SET counter_value = anti_abuse_counters.counter_value + 1
+            RETURNING counter_value
+        """, (user_id, counter_type, today))
+        value = cur.fetchone()[0]
+        conn.commit()
+        return value <= limit
+    finally:
+        GLOBAL_POOL.putconn(conn)
 
 
 def limit_usage(counter_type: str, limit: int):
