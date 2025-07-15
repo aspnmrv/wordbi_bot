@@ -8,7 +8,7 @@ from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage(pattern="Увидеть карточки 💜"))
-@limit_usage("see_cards", 15)
+@limit_usage("see_cards", 30)
 async def see_cards(event):
     user_id = event.message.peer_id.user_id
     if await is_expected_steps(user_id, [101, 391, 903]):

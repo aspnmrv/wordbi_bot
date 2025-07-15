@@ -66,8 +66,11 @@ def limit_usage(counter_type: str, limit: int):
         async def wrapper(event, *args, **kwargs):
             user_id = event.sender_id if hasattr(event, "sender_id") else event.message.peer_id.user_id
             if not await increment_counter_and_check(user_id, counter_type, limit):
-                await event.client.send_message(event.chat_id,
-                    "Ты сегодня уже достиг лимита использования для этой функции 🛑 Попробуй завтра.")
+                await event.client.send_message(
+                    event.chat_id,
+                    "Ого, какая активность! Но я не успеваю справляться с такой нагрузкой 😔\n\n"
+                    "Попробуй воспользоваться этой функцией завтра 💜"
+                )
                 return
             return await func(event, *args, **kwargs)
         return wrapper

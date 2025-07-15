@@ -8,7 +8,8 @@ from bot.db import (
     get_user_topics_db,
     get_user_level_db,
     get_history_chat_ellie_db,
-    update_messages_db
+    update_messages_db,
+    increment_counter_and_check
 )
 from bot.ellie import get_conversations, get_response
 from bot.globals import LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES
@@ -19,7 +20,6 @@ from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage())
-@limit_usage("dialog_with_ellie", 100)
 async def dialog_with_ellie(event):
     user_id = event.message.peer_id.user_id
     message_text = event.message.message
@@ -38,6 +38,14 @@ async def dialog_with_ellie(event):
             "закончить диалог с Ellie по кнопке Завершить 🙂",
             reply_to=event.message.id,
             buttons=keyboard
+        )
+        return
+
+    if not await increment_counter_and_check(user_id, "dialog_with_ellie", 150):
+        await event.client.send_message(
+            event.chat_id,
+            "Ого, какая активность! Но я не успеваю справляться с такой нагрузкой 😔\n\n"
+            "Попробуй воспользоваться этой функцией завтра 💜"
         )
         return
 

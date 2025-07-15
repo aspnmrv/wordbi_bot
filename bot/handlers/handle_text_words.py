@@ -17,7 +17,7 @@ from bot.tools import (
 )
 from bot.db import (
     get_user_level_db, update_user_words_db, update_data_events_db,
-    update_user_stat_category_words_db
+    update_user_stat_category_words_db, increment_counter_and_check
 )
 from bot.ellie import get_cards_from_simple_list
 from bot.decorators import limit_usage
@@ -40,8 +40,13 @@ async def handle_custom_topic_input(event):
     if not await is_valid_word_list(message_text) and not await is_simple_word_list(message_text):
         return
 
-    level = await get_user_level_db(user_id)
-    wrapped = limit_usage("handle_custom_topic_input", 40)(handle_custom_topic_input)
+    if not await increment_counter_and_check(user_id, "handle_custom_topic_input", 40):
+        await event.client.send_message(
+            event.chat_id,
+            "Ого, какая активность! Но я не успеваю справляться с такой нагрузкой 😔\n\n"
+            "Попробуй воспользоваться этой функцией завтра 💜"
+        )
+        return
 
     await event.client.send_message(event.chat_id, "Формирую список слов...", buttons=Button.clear())
 

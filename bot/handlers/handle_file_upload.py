@@ -5,7 +5,7 @@ from bot.handlers.common import (
     send_error_message
 )
 from bot.tools import get_keyboard, is_expected_steps, extract_text_from_docx, cut_word_pairs
-from bot.db import update_data_events_db
+from bot.db import update_data_events_db, increment_counter_and_check
 from bot.ellie import parse_file
 from bot.decorators import limit_usage
 import ast
@@ -31,8 +31,14 @@ async def handle_docx_upload(event):
             "Принял файл 👍. Начинаю обработку...",
             buttons=await get_keyboard(["Завершить"])
         )
-        wrapped = limit_usage("handle_docx_upload", 20)(handle_docx_upload)
-        await wrapped(event)
+
+        if not await increment_counter_and_check(user_id, "handle_docx_upload", 20):
+            await event.client.send_message(
+                event.chat_id,
+                "Ого, какая активность! Но я не успеваю справляться с такой нагрузкой 😔\n\n"
+                "Попробуй воспользоваться этой функцией завтра 💜"
+            )
+            return
 
         try:
             path = await event.message.download_media()

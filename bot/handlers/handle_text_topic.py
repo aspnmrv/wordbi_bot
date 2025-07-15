@@ -9,7 +9,7 @@ from bot.handlers.common import (
 from bot.tools import get_keyboard, build_img_cards, is_expected_steps, is_valid_word_list, is_simple_word_list
 from bot.db import (
     get_user_level_db, update_user_words_db, update_data_events_db,
-    update_user_stat_category_words_db
+    update_user_stat_category_words_db, increment_counter_and_check
 )
 from bot.ellie import build_cards_from_text
 from bot.decorators import limit_usage
@@ -35,8 +35,14 @@ async def handle_custom_topic_input(event):
     await event.client.send_message(event.chat_id, "Формирую список слов...", buttons=Button.clear())
 
     level = await get_user_level_db(user_id)
-    wrapped = limit_usage("handle_custom_topic_input", 40)(handle_custom_topic_input)
-    await wrapped(event)
+
+    if not await increment_counter_and_check(user_id, "handle_custom_topic_input", 40):
+        await event.client.send_message(
+            event.chat_id,
+            "Ого, какая активность! Но я не успеваю справляться с такой нагрузкой 😔\n\n"
+            "Попробуй воспользоваться этой функцией завтра 💜"
+        )
+        return
     try:
         card_words = await build_cards_from_text(message_text, level, user_id)
 
