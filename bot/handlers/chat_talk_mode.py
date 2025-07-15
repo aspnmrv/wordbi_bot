@@ -24,9 +24,11 @@ from config.config import test_user_id
 from bot.ellie import get_conversations, get_response, build_cards_from_text
 from bot.tools import build_history_message, build_img_cards, get_diff_between_ts, is_expected_steps
 from bot.bot_instance import bot
+from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage(pattern="Поболтать 💌"))
+@limit_usage("start_conversation_mode", 50)
 async def start_conversation_mode(event):
     user_id = event.message.peer_id.user_id
     step = await _get_current_user_step(user_id)

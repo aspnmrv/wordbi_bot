@@ -7,11 +7,13 @@ from bot.handlers.common import (
 from bot.tools import get_keyboard, is_expected_steps, extract_text_from_docx, cut_word_pairs
 from bot.db import update_data_events_db
 from bot.ellie import parse_file
+from bot.decorators import limit_usage
 import ast
 import os
 
 
 @bot.on(events.NewMessage())
+@limit_usage("handle_docx_upload", 15)
 async def handle_docx_upload(event):
     user_id = event.message.peer_id.user_id
 

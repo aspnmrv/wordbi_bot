@@ -4,9 +4,11 @@ from bot.db_tools import _update_current_user_step
 from bot.tools import is_expected_steps
 from bot.handlers.cards_by_interest import get_start_cards
 from bot.bot_instance import bot
+from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage(pattern="Увидеть карточки 💜"))
+@limit_usage("see_cards", 15)
 async def see_cards(event):
     user_id = event.message.peer_id.user_id
     if await is_expected_steps(user_id, [101, 391, 903]):

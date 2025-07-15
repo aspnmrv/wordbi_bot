@@ -24,6 +24,7 @@ from bot.db import (
 )
 from paths import PATH_IMAGES
 from bot.bot_instance import bot
+from bot.decorators import limit_usage
 
 
 def random_invisible():
@@ -42,6 +43,7 @@ def file_hash(path):
 
 
 @bot.on(events.NewMessage(pattern="Проверить себя 🧠"))
+@limit_usage("testing_words", 15)
 async def testing_words(event):
     user_id = event.message.peer_id.user_id
     step = await _get_current_user_step(user_id)

@@ -32,6 +32,33 @@ from bot.db import get_user_topics_db, get_user_level_db, update_user_stat_categ
 from bot.globals import TOPICS, WORDS, TRANSLATES
 from paths import PATH_IMAGES, PATH_FONT
 
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+last_message_time = defaultdict(lambda: datetime.min)
+daily_message_count = defaultdict(lambda: {"date": datetime.today().date(), "count": 0})
+
+
+def is_spam(user_id: int, max_per_second=1, max_per_day=500):
+    """"""
+    now = datetime.now()
+    last_time = last_message_time[user_id]
+
+    today = now.date()
+    if daily_message_count[user_id]["date"] != today:
+        daily_message_count[user_id] = {"date": today, "count": 0}
+
+    if (now - last_time).total_seconds() < max_per_second:
+        return True
+
+    if daily_message_count[user_id]["count"] >= max_per_day:
+        return True
+
+    last_message_time[user_id] = now
+    daily_message_count[user_id]["count"] += 1
+
+    return False
+
 
 async def update_text_from_state_markup(
     markup: Any,

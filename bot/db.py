@@ -11,6 +11,9 @@ from psycopg2 import pool
 from psycopg2.extras import execute_values
 from globals import MINCONN, MAXCONN
 from datetime import datetime
+from functools import wraps
+from datetime import datetime
+from typing import Callable
 
 
 def connect_from_config(file):
@@ -726,3 +729,40 @@ async def get_user_stat_total_db(user_id):
     data = cur.fetchall()
     GLOBAL_POOL.putconn(conn)
     return data if data else []
+
+
+async def increment_counter_and_check(user_id: int, counter_type: str, limit: int) -> bool:
+    conn = GLOBAL_POOL.getconn()
+    cur = conn.cursor()
+    today = datetime.today().strftime("%Y-%m-%d")
+
+    cur.execute("""
+        INSERT INTO anti_abuse_counters (user_id, counter_type, counter_value, counter_date)
+        VALUES (%s, %s, 1, %s)
+        ON CONFLICT (user_id, counter_type, counter_date)
+        DO UPDATE SET counter_value = anti_abuse_counters.counter_value + 1
+    """, (user_id, counter_type, today))
+
+    cur.execute("""
+        SELECT counter_value FROM anti_abuse_counters
+        WHERE user_id = %s AND counter_type = %s AND counter_date = %s
+    """, (user_id, counter_type, today))
+    value = cur.fetchone()[0]
+    GLOBAL_POOL.putconn(conn)
+    return value <= limit
+
+
+def limit_usage(counter_type: str, limit: int):
+    def decorator(func: Callable):
+        @wraps(func)
+        async def wrapper(event, *args, **kwargs):
+            user_id = event.sender_id if hasattr(event, 'sender_id') else event.message.peer_id.user_id
+            if not await increment_counter_and_check(user_id, counter_type, limit):
+                await event.client.send_message(event.chat_id,
+                    "Ты сегодня уже достиг лимита использования для этой функции 🛑 Попробуй завтра.")
+                return
+            return await func(event, *args, **kwargs)
+        return wrapper
+    return decorator
+
+

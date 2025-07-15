@@ -15,9 +15,11 @@ from bot.globals import LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES
 from bot.tools import get_keyboard, build_history_message, get_diff_between_ts, is_expected_steps
 from bot.bot_instance import bot
 from config.config import test_user_id
+from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage())
+@limit_usage("dialog_with_ellie", 50)
 async def dialog_with_ellie(event):
     user_id = event.message.peer_id.user_id
     message_text = event.message.message

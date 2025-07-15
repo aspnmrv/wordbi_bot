@@ -12,9 +12,11 @@ from bot.db import (
     update_user_stat_category_words_db
 )
 from bot.ellie import build_cards_from_text
+from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage())
+@limit_usage("handle_custom_topic_input", 15)
 async def handle_custom_topic_input(event):
     user_id = event.message.peer_id.user_id
     message_text = event.message.message

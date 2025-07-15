@@ -17,10 +17,12 @@ from bot.ellie import get_conversations, get_response
 from bot.globals import LIMIT_TIME_EVENTS, LIMIT_USES_MESSAGES
 from bot.tools import get_keyboard, build_history_message, get_diff_between_ts, is_expected_steps
 from bot.bot_instance import bot
+from bot.decorators import limit_usage
 from config.config import test_user_id
 
 
 @bot.on(events.NewMessage())
+@limit_usage("dialog_with_ellie", 15)
 async def dialog_with_ellie(event):
     user_id = event.message.peer_id.user_id
     message_text = event.message.message
