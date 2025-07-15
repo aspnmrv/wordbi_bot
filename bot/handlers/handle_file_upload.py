@@ -13,7 +13,6 @@ import os
 
 
 @bot.on(events.NewMessage())
-@limit_usage("handle_docx_upload", 15)
 async def handle_docx_upload(event):
     user_id = event.message.peer_id.user_id
 
@@ -32,6 +31,8 @@ async def handle_docx_upload(event):
             "Принял файл 👍. Начинаю обработку...",
             buttons=await get_keyboard(["Завершить"])
         )
+        wrapped = limit_usage("handle_docx_upload", 20)(handle_docx_upload)
+        await wrapped(event)
 
         try:
             path = await event.message.download_media()

@@ -22,7 +22,6 @@ from config.config import test_user_id
 
 
 @bot.on(events.NewMessage())
-@limit_usage("dialog_with_ellie", 15)
 async def dialog_with_ellie(event):
     user_id = event.message.peer_id.user_id
     message_text = event.message.message
@@ -43,6 +42,10 @@ async def dialog_with_ellie(event):
             buttons=keyboard
         )
         return
+
+    level = await get_user_level_db(user_id)
+    wrapped = limit_usage("dialog_with_ellie", 30)(dialog_with_ellie)
+    await wrapped(event)
 
     await _update_current_user_step(user_id, 101)
     keyboard = await get_keyboard(["Увидеть карточки 💜"])

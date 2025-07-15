@@ -28,7 +28,7 @@ from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage(pattern="Поболтать 💌"))
-@limit_usage("start_conversation_mode", 50)
+@limit_usage("start_conversation_mode", 100)
 async def start_conversation_mode(event):
     user_id = event.message.peer_id.user_id
     step = await _get_current_user_step(user_id)

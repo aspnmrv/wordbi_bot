@@ -3,11 +3,9 @@ from bot.tools import get_keyboard, is_expected_steps
 from bot.db_tools import _get_current_user_step, _update_current_user_step
 from bot.db import update_data_events_db, get_user_categories_db
 from bot.bot_instance import bot
-from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage(pattern="Создать свой набор слов 🧬"))
-@limit_usage("start_conversation_mode", 50)
 async def create_self_words(event):
     user_id = event.message.peer_id.user_id
     step = await _get_current_user_step(user_id)

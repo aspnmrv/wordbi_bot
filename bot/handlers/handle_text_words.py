@@ -24,7 +24,6 @@ from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage())
-@limit_usage("handle_custom_topic_input", 15)
 async def handle_custom_topic_input(event):
     user_id = event.message.peer_id.user_id
     message_text = event.message.message
@@ -40,6 +39,9 @@ async def handle_custom_topic_input(event):
 
     if not await is_valid_word_list(message_text) and not await is_simple_word_list(message_text):
         return
+
+    level = await get_user_level_db(user_id)
+    wrapped = limit_usage("handle_custom_topic_input", 40)(handle_custom_topic_input)
 
     await event.client.send_message(event.chat_id, "Формирую список слов...", buttons=Button.clear())
 

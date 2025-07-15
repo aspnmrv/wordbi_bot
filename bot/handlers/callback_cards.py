@@ -18,7 +18,7 @@ from bot.decorators import limit_usage
 
 
 @bot.on(events.CallbackQuery())
-@limit_usage("handle_card_callback", 300)
+@limit_usage("handle_card_callback", 1000)
 async def handle_card_callback(event):
     user_id = event.original_update.user_id
     step = await _get_current_user_step(user_id)

@@ -19,7 +19,7 @@ from bot.decorators import limit_usage
 
 
 @bot.on(events.NewMessage())
-@limit_usage("dialog_with_ellie", 50)
+@limit_usage("dialog_with_ellie", 100)
 async def dialog_with_ellie(event):
     user_id = event.message.peer_id.user_id
     message_text = event.message.message
