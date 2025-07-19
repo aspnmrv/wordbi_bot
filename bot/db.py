@@ -723,7 +723,7 @@ async def get_user_stat_total_db(user_id):
             CASE WHEN words > 0 THEN learned_words::float / words::float * 100 ELSE 0 END AS share_learned_words
         FROM result_cte
         ORDER BY learned_words DESC
-        LIMIT 10
+        LIMIT 7
     """
     cur.execute(query, (user_id, user_id))
     data = cur.fetchall()

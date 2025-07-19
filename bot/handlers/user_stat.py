@@ -27,11 +27,10 @@ async def get_my_stat(event):
     # keyboard = await get_keyboard(["Карточки слов 🧩", "Чат с Ellie ✨"])
     if cnt_new_words:
         dates = [d[0] for d in cnt_new_words]
-        viewed_cards = [d[1] for d in cnt_new_words]
+        # viewed_cards = [d[1] for d in cnt_new_words]
         learned_cards = [d[1] for d in cnt_learned_words]
 
         text = f"Что по прогрессу? 💜\n\n\n" \
-               f"У тебя {sum(viewed_cards)} просмотренных карточки\n\n" \
                f"🦾 {sum(learned_cards)} успешно изученных слов\n\n" \
                f"📊 Любимая категория: {categories[0]}\n\n"
         await event.client.send_message(
@@ -41,8 +40,8 @@ async def get_my_stat(event):
         )
 
         if len(dates) > 1:
-            file_viewed_cards = await draw_words_line_chart(cnt_new_words)
-            await send_user_file_stat(event, file_viewed_cards, "✨Количество просмотренных карточек по дням")
+            # file_viewed_cards = await draw_words_line_chart(cnt_new_words)
+            # await send_user_file_stat(event, file_viewed_cards, "✨Количество просмотренных карточек по дням")
 
             file_learned_cards = await draw_words_line_chart(cnt_learned_words)
             await send_user_file_stat(event, file_learned_cards, "⭐️ Количество выученных карточек по дням")

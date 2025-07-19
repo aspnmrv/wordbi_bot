@@ -434,7 +434,7 @@ async def draw_words_category_chart(data):
 
     ax.grid(False)
     ax.set_xticks(x)
-    ax.set_xticklabels(categories, fontsize=12)
+    ax.set_xticklabels(categories, fontsize=12, rotation=90)
 
     plt.tight_layout()
     file = NamedTemporaryFile(delete=False, suffix=".png")
