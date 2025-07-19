@@ -769,3 +769,49 @@ def limit_usage(counter_type: str, limit: int):
     return decorator
 
 
+async def mark_word_as_hard_db(user_id, word, category, is_system):
+    conn = GLOBAL_POOL.getconn()
+    try:
+        with conn.cursor() as cur:
+            query = """
+                INSERT INTO user_hard_words (user_id, word, category, is_system)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (user_id, word, category, is_system)
+                DO UPDATE SET last_failed_at = NOW(), is_learned = FALSE;
+            """
+            cur.execute(query, (user_id, word, category, is_system))
+        conn.commit()
+    finally:
+        GLOBAL_POOL.putconn(conn)
+
+
+def mark_word_as_learned_db(user_id, word, category, is_system):
+    conn = GLOBAL_POOL.getconn()
+    try:
+        with conn.cursor() as cur:
+            query = """
+                UPDATE user_hard_words
+                SET is_learned = TRUE
+                WHERE user_id = %s AND word = %s AND category = %s AND is_system = %s;
+            """
+            cur.execute(query, (user_id, word, category, is_system))
+        conn.commit()
+    finally:
+        GLOBAL_POOL.putconn(conn)
+
+
+def get_user_hard_words_for_testing(user_id):
+    conn = GLOBAL_POOL.getconn()
+    try:
+        with conn.cursor() as cur:
+            query = """
+                SELECT word FROM user_hard_words
+                WHERE user_id = %s AND is_learned = FALSE
+                ORDER BY last_failed_at DESC
+                LIMIT 30;
+            """
+            cur.execute(query, (user_id,))
+            rows = cur.fetchall()
+            return [row[0] for row in rows]  # row[0] = word
+    finally:
+        GLOBAL_POOL.putconn(conn)

@@ -36,5 +36,10 @@ async def get_end(event):
                 opposite_text,
                 buttons=[[Button.inline("Да, давай попробуем!", data=opposite_data)]]
             )
-
+        keyboard += [[Button.inline("📌 Повторить сложные слова", data="test_hard_words")]]
+        await event.client.send_message(
+            event.chat_id,
+            "Также можешь повторить слова, которые запомнились хуже всего:",
+            buttons=[[Button.inline("📌 Повторить сложные слова", data="test_hard_words")]]
+        )
         await update_data_events_db(user_id, "complete", {"step": step})

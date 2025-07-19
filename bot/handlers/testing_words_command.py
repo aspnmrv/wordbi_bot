@@ -20,7 +20,10 @@ from bot.db import (
     update_data_events_db,
     get_user_words_by_category_db,
     update_user_stat_learned_words_db,
-    get_user_one_word_db
+    get_user_one_word_db,
+    mark_word_as_hard_db,
+    mark_word_as_learned_db,
+    get_user_hard_words_for_testing
 )
 from paths import PATH_IMAGES
 from bot.bot_instance import bot
@@ -93,6 +96,10 @@ async def callback_handler(event):
         step = await _get_current_user_step(user_id)
         if step in [2010, 2011, 3010, 4010, 4011, 5010]:
             main_mode = await _get_user_main_mode(user_id)
+            cur_test_word = await _get_user_test_words(user_id)
+            category = await _get_user_choose_category(user_id=user_id)
+            if cur_test_word and category:
+                await mark_word_as_hard_db(user_id, cur_test_word.lower(), category[0], category[1])
             await start_testing(event, user_id, mode=main_mode)
         else:
             await event.client.send_message(
@@ -105,6 +112,19 @@ async def callback_handler(event):
             )
     elif data == "flip_card":
         await handle_flip_card(event, user_id)
+
+    elif data == "test_hard_words":
+        words = get_user_hard_words_for_testing(user_id)
+        if not words:
+            await event.client.send_message(event.chat_id, "Нет слов, которые нужно повторить — ты молодец! 🎉")
+            return
+        await _update_user_test_sequence(user_id, words)
+        await _update_user_test_words(user_id, None)
+        await _update_current_user_step(user_id, 5010)
+        await event.client.send_message(event.chat_id, "Повторяем сложные слова! 💪",
+                                        buttons=await get_keyboard(["Завершить"]))
+        main_mode = await _get_user_main_mode(user_id)
+        await start_testing(event, user_id, mode=main_mode)
 
 
 async def start_testing(event, user_id, mode="en_ru"):
@@ -275,12 +295,14 @@ async def handle_testing_answer(event):
             next_step = 4011
 
         if message_text.lower() == correct_answer:
+            mark_word_as_learned_db(user_id, cur_test_word.lower(), category[0], category[1])
             await event.client.send_message(event.chat_id, "Иии.. верно! Так держать 🦾", buttons=keyboard)
             await update_data_events_db(user_id, "testing_success", {"step": -1, "word": message_text.lower()})
             await update_user_stat_learned_words_db(user_id, cur_test_word.lower())
             await _update_current_user_step(user_id, next_step)
             await start_testing(event, user_id, mode=main_mode)
         else:
+            await mark_word_as_hard_db(user_id, cur_test_word.lower(), category[0], category[1])
             await event.client.send_message(
                 event.chat_id,
                 "Неверно 🙁 попробуй еще раз!",
