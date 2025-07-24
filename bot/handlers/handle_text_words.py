@@ -114,7 +114,8 @@ async def handle_custom_topic_input(event):
                 await update_data_events_db(user_id, "cards_from_list_error", {"step": -1, "error": "specific"})
                 return
 
-            card_words = ast.literal_eval(card_words)
+            if isinstance(card_words, str):
+                card_words = ast.literal_eval(card_words)
 
             if not isinstance(card_words, dict):
                 keyboard = await get_keyboard(["Завершить"])

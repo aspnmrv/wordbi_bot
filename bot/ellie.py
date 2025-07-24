@@ -2,6 +2,7 @@ import openai
 import ast
 import sys
 import os
+import json
 
 from config import config
 
@@ -248,7 +249,6 @@ async def parse_file(user_id: int, text: str) -> Optional[str]:
             temperature=0.3,
             max_tokens=MAX_TOKENS+1000
         )
-
         return chat_completion.choices[0].message.content
     except Exception as e:
        await update_error_logs_db(user_id, e)

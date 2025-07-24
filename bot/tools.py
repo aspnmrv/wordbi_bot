@@ -3,6 +3,8 @@ import asyncio
 import os, fnmatch
 import requests
 import re
+import json
+import ast
 import hashlib
 import aiofiles
 import random
@@ -215,7 +217,6 @@ async def build_list_of_words(user_topics: List[str], user_level: str, user_id: 
             for word in words:
                 word_to_category[word] = f"{TOPICS[topic]}_{level_key.upper()}_level"
 
-    print("word_to_category", word_to_category)
 
     bulk_data = {}
     for word, category in word_to_category.items():
@@ -541,3 +542,51 @@ def get_image_filename(user_id: int, word: str, lang: str, category: str) -> str
     unique_str = f"{user_id}_{safe_category}_{word.strip().lower()}_{lang}"
     hashed_name = hashlib.sha256(unique_str.encode()).hexdigest()
     return f"{PATH_IMAGES}/{hashed_name}.png"
+
+
+def normalize_quotes(s: str) -> str:
+    s = s.replace("“", '"').replace("”", '"')
+    s = s.replace("‘", "'").replace("’", "'")
+    return s.strip()
+
+
+def extract_dict_from_text(text: str) -> str:
+    match = re.search(r"\{[\s\S]*\}", text)
+    return match.group(0) if match else text
+
+
+def sanitize_value_quotes(s: str) -> str:
+    def fix_line(line):
+        parts = line.split(":", 1)
+        if len(parts) != 2:
+            return line
+        key, value = parts
+        value = value.strip()
+        if value.startswith('"') and value.endswith('"'):
+            inner = value[1:-1]
+            fixed = inner.replace('"', '\\"')
+            return f'{key}: "{fixed}"'
+        return line
+
+    lines = s.splitlines()
+    fixed_lines = [fix_line(line) for line in lines]
+    return "\n".join(fixed_lines)
+
+
+def parse_card_words(raw: str) -> dict:
+    if not raw:
+        return {}
+
+    raw = normalize_quotes(raw)
+    raw = extract_dict_from_text(raw)
+    raw = sanitize_value_quotes(raw)
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        print("JSONDecodeError:", e)
+
+    try:
+        return ast.literal_eval(raw)
+    except:
+        return {}

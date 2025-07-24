@@ -4,12 +4,13 @@ from bot.handlers.common import (
     finalize_cards_and_send_next_steps,
     send_error_message
 )
-from bot.tools import get_keyboard, is_expected_steps, extract_text_from_docx, cut_word_pairs
+from bot.tools import get_keyboard, is_expected_steps, extract_text_from_docx, cut_word_pairs, normalize_quotes, parse_card_words
 from bot.db import update_data_events_db, increment_counter_and_check
 from bot.ellie import parse_file
 from bot.decorators import limit_usage
 import ast
 import os
+import json
 
 
 @bot.on(events.NewMessage())
@@ -71,8 +72,8 @@ async def handle_docx_upload(event):
             return
 
         try:
-            card_words = await parse_file(user_id, content)
-            card_words = ast.literal_eval(card_words)
+            raw_result = await parse_file(user_id, content)
+            card_words = parse_card_words(raw_result)
             if not isinstance(card_words, dict):
                 keyboard = await get_keyboard(["Завершить"])
                 await event.client.send_message(
