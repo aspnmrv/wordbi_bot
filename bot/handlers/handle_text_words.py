@@ -67,8 +67,8 @@ async def handle_custom_topic_input(event):
         is_cut = False
         if await is_valid_word_list(message_text):
             lines = message_text.splitlines()
-            if len(lines) > 50:
-                lines = lines[:50]
+            if len(lines) > 150:
+                lines = lines[:150]
                 message_text = "\n".join(lines)
                 is_cut = True
 
@@ -98,8 +98,8 @@ async def handle_custom_topic_input(event):
             await finalize_cards_and_send_next_steps(event, user_id, card_words, "tmp349201", next_step=109, is_cut=is_cut)
         elif await is_simple_word_list(message_text):
             lines = message_text.splitlines()
-            if len(lines) > 50:
-                lines = lines[:50]
+            if len(lines) > 150:
+                lines = lines[:150]
                 message_text = "\n".join(lines)
                 is_cut = True
 
